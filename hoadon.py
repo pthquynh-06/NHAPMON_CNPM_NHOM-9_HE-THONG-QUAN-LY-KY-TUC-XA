@@ -1,1 +1,1 @@
-#quản lí hóa đơn ở ktx
+# quản lý hóa đơn ký túc xa

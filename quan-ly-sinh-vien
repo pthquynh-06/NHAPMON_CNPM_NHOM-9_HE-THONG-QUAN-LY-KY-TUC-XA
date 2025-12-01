@@ -1,1 +1,86 @@
-Student management in dormitories involves monitoring, regulating, and supporting students during their stay to ensure order and safety.
+class Student:
+    def __init__(self, mssv, hoten, lop, quequan):
+        self.mssv = mssv
+        self.hoten = hoten
+        self.lop = lop
+        self.quequan = quequan
+
+    def show(self):
+        print(f"MSSV: {self.mssv} | Họ tên: {self.hoten} | Lớp: {self.lop} | Quê quán: {self.quequan}")
+
+
+class StudentManager:
+    def __init__(self):
+        self.students = []
+
+    def add_student(self):
+        print("\n--- THÊM SINH VIÊN ---")
+        mssv = input("Nhập MSSV: ")
+        hoten = input("Nhập họ tên: ")
+        lop = input("Nhập lớp: ")
+        quequan = input("Nhập quê quán: ")
+        sv = Student(mssv, hoten, lop, quequan)
+        self.students.append(sv)
+        print("✔ Thêm sinh viên thành công!\n")
+
+    def show_all(self):
+        print("\n--- DANH SÁCH SINH VIÊN ---")
+        if not self.students:
+            print("Danh sách trống!\n")
+            return
+
+        for sv in self.students:
+            sv.show()
+        print()
+
+    def find_student(self):
+        print("\n--- TÌM SINH VIÊN ---")
+        key = input("Nhập MSSV cần tìm: ")
+        for sv in self.students:
+            if sv.mssv == key:
+                print("✔ Đã tìm thấy:")
+                sv.show()
+                return
+        print("✖ Không tìm thấy sinh viên!\n")
+
+    def delete_student(self):
+        print("\n--- XÓA SINH VIÊN ---")
+        key = input("Nhập MSSV cần xóa: ")
+        for sv in self.students:
+            if sv.mssv == key:
+                self.students.remove(sv)
+                print("✔ Đã xóa thành công!\n")
+                return
+        print("✖ Không tìm thấy sinh viên!\n")
+
+
+def menu():
+    manager = StudentManager()
+
+    while True:
+        print("===== QUẢN LÝ SINH VIÊN =====")
+        print("1. Thêm sinh viên")
+        print("2. Hiển thị danh sách")
+        print("3. Tìm sinh viên")
+        print("4. Xóa sinh viên")
+        print("5. Thoát")
+
+        choice = input("Chọn chức năng (1-5): ")
+
+        if choice == "1":
+            manager.add_student()
+        elif choice == "2":
+            manager.show_all()
+        elif choice == "3":
+            manager.find_student()
+        elif choice == "4":
+            manager.delete_student()
+        elif choice == "5":
+            print("Thoát chương trình...")
+            break
+        else:
+            print("Lựa chọn không hợp lệ! Vui lòng nhập 1-5.\n")
+
+
+if __name__ == "__main__":
+    menu()

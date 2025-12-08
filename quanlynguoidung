@@ -1,1 +1,51 @@
+<?php
+session_start();
+require 'db_connect.php';
+
+$username = trim($_POST['username'] ?? '');
+$password = $_POST['password'] ?? '';
+
+# ---------- AC02 ----------
+if(empty($username) || empty($password)){
+    $_SESSION['error'] = "Không được để trống!";
+    header("Location: login.php");
+    exit;
+}
+
+$query = "SELECT * FROM users WHERE username=?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("s",$username);
+$stmt->execute();
+$result = $stmt->get_result();
+
+# ---------- AC03 ----------
+if($result->num_rows != 1){
+    $_SESSION['error'] = "Sai thông tin đăng nhập!";
+    header("Location: login.php");
+    exit;
+}
+
+$user = $result->fetch_assoc();
+
+# ---------- TASK 5 - password_verify ----------
+if(!password_verify($password,$user['password'])){
+    $_SESSION['error'] = "Sai mật khẩu!";
+    header("Location: login.php");
+    exit;
+}
+
+# ---------- AC04 ----------
+$_SESSION['loggedin'] = true;
+$_SESSION['user_id'] = $user['id'];
+$_SESSION['username'] = $user['username'];
+$_SESSION['role'] = $user['role'];
+$_SESSION['last_activity'] = time();
+
+# ---------- AC06 ----------
+if(isset($_POST['remember'])){
+    setcookie("remember_user",$user['username'],time()+7*86400);
+}
+
+header("Location: dashboard.php");
+exit;
 

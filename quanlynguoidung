@@ -1,3 +1,21 @@
+--THIẾT KẾ BẢNG USERS:
+CREATE DATABASE QUANLYNGUOIDUNG;
+USE QUANLYNGUOIDU;
+
+CREATE TABLE users (
+    id INT NOT NULL AUTO_INCREMENT,
+    email VARCHAR(100) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    full_name VARCHAR(100),
+    role VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    PRIMARY KEY (id)
+);
+INSERT INTO users (id,email, password, full_name, role, status)
+VALUES (01,'admin@gmail.com','12345656','Quản trị viên','admin','active'
+);
+
+--XỬ LÍ LOGIC ĐĂNG NHẬP:
 <?php
 session_start();
 require 'db_connect.php';
@@ -48,4 +66,5 @@ if(isset($_POST['remember'])){
 
 header("Location: dashboard.php");
 exit;
+
 

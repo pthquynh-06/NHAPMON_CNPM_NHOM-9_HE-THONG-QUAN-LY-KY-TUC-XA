@@ -67,6 +67,84 @@ if(isset($_POST['remember'])){
 header("Location: dashboard.php");
 exit;
 
+#BẢO VỆ ĐĂNG NHẬP:
+<?php
+session_start();
+
+/*
+============================
+ AC08 - SESSION TIMEOUT
+============================
+*/
+
+$timeout = 900; // 15 phút
+
+if (isset($_SESSION['last_activity'])
+    && (time() - $_SESSION['last_activity']) > $timeout) {
+
+    session_unset();
+    session_destroy();
+
+    header("Location: login.php?timeout=1");
+    exit;
+}
+
+// reset activity time
+$_SESSION['last_activity'] = time();
+
+/*
+============================
+ AC07 - BẢO VỆ DASHBOARD
+============================
+*/
+
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header("Location: login.php");
+    exit;
+}
+
+/*
+============================
+ GIAO DIỆN
+============================
+*/
+?>
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+
+<h1>
+  Xin chào 
+  <?php echo htmlspecialchars($_SESSION['username']); ?>
+</h1>
+
+<p>
+  Vai trò: 
+  <b><?php echo htmlspecialchars($_SESSION['role']); ?></b>
+</p>
+
+<?php if ($_SESSION['role'] === 'admin'): ?>
+    <hr>
+    <h3>
+      Trang dành cho ADMIN
+    </h3>
+<?php endif; ?>
+
+<hr>
+
+<a href="logout.php">
+  Đăng xuất
+</a>
+
+</body>
+</html>
+
+=======
 #-- KẾT NỐI DATABASE BẰNG PHP
 <?php
 $conn = new mysqli("localhost","root","","your_database");

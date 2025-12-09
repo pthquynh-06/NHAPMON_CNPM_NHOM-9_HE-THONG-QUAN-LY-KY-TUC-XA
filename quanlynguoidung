@@ -67,32 +67,12 @@ if(isset($_POST['remember'])){
 header("Location: dashboard.php");
 exit;
 
---XÂY DỰNG GIAO DIỆN TRANG ĐĂNG NHẬP:
+#-- KẾT NỐI DATABASE BẰNG PHP
 <?php
-session_start();
-$error = $_SESSION['error'] ?? '';
-unset($_SESSION['error']);
+$conn = new mysqli("localhost","root","","your_database");
+
+if ($conn->connect_error) {
+    die("Lỗi kết nối DB");
+}
+$conn->set_charset("utf8mb4");
 ?>
-
-<h2>ĐĂNG NHẬP</h2>
-
-<?php if($error): ?>
-<p style="color:red"><?php echo $error?></p>
-<?php endif; ?>
-
-<form method="POST" action="login_process.php">
-
-Tên đăng nhập:
-<input name="username" required><br><br>
-
-Mật khẩu:
-<input type="password" name="password" required><br><br>
-
-<label>
-<input type="checkbox" name="remember">
- Ghi nhớ đăng nhập
-</label><br><br>
-
-<button type="submit">Đăng nhập</button>
-
-</form>

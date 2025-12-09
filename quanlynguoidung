@@ -67,4 +67,12 @@ if(isset($_POST['remember'])){
 header("Location: dashboard.php");
 exit;
 
+#-- KẾT NỐI DATABASE BẰNG PHP
+<?php
+$conn = new mysqli("localhost","root","","your_database");
 
+if ($conn->connect_error) {
+    die("Lỗi kết nối DB");
+}
+$conn->set_charset("utf8mb4");
+?>

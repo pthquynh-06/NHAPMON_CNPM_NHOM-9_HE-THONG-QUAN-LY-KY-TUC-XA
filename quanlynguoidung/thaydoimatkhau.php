@@ -81,9 +81,11 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         }
         else{
             $error = "Lỗi cập nhật mật khẩu";
+        }
     }
 }
-                             
+
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>

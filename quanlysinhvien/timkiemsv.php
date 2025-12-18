@@ -303,6 +303,15 @@ th{
     font-weight:600;
     color: #4b5563;
 }
+/* Thêm vào cuối cùng của phần <style> */
+.search-card {
+    display: none; /* Ẩn toàn bộ khung tìm kiếm khi vừa load trang */
+}
+/* Đoạn này điều khiển màu xanh khi menu được kích hoạt */
+.menu a.active {
+    background: linear-gradient(90deg, #2563eb, #1d4ed8) !important;
+    color: #fff !important;
+}
 </style>
 </head>
 
@@ -334,7 +343,7 @@ th{
             <ul class="submenu">
                 <li><a>Danh sách sinh viên</a></li>
                 <li><a>Thêm sinh viên</a></li>
-                <li><a>Tìm kiếm sinh viên</a></li>
+                <li><a href="javascript:void(0)" onclick="showSearch()">Tìm kiếm sinh viên</a></li>
             </ul>
         </li>
 
@@ -400,7 +409,7 @@ th{
 
 <main class="main">
     <div class="header">
-        <h2>Tổng quan & Quản lý Sinh viên</h2>
+        <h2></h2>
         <div class="user">Xin chào, Quản lý </div>
     </div>
 
@@ -500,6 +509,39 @@ function deleteSV(mssv){
         performSearch();
     }
 }
+/* Thêm hàm này vào cuối phần <script> */
+function showSearch() {
+    // Tìm đến khung tìm kiếm và cho hiện nó lên
+    document.querySelector('.search-card').style.display = 'block';
+    
+    // Gọi hàm hiển thị dữ liệu có sẵn trong code của bạn
+    displayInitialData();
+    
+    // Xóa chữ ở tiêu đề h2 (nếu muốn giống ảnh bạn gửi là tiêu đề trống)
+    document.querySelector('.header h2').innerText = 'Tìm kiếm Sinh viên';
+}
+document.querySelectorAll('.menu a').forEach(item => {
+    item.addEventListener('click', function() {
+        // 1. Xử lý nhảy màu xanh (Giữ nguyên)
+        document.querySelectorAll('.menu a').forEach(nav => nav.classList.remove('active'));
+        this.classList.add('active');
+
+        // 2. Xử lý ẩn/hiện và tiêu đề
+        const menuText = this.innerText.trim();
+        const searchCard = document.querySelector('.search-card');
+        const headerTitle = document.querySelector('.header h2'); // Thẻ h2 ở đầu trang
+
+        // KHÔNG đặt lại innerText nữa để tiêu đề luôn trống
+        headerTitle.innerText = ''; 
+
+        if (menuText === "Tìm kiếm sinh viên") {
+            searchCard.style.display = 'block';
+            displayInitialData();
+        } else {
+            searchCard.style.display = 'none';
+        }
+    });
+});
 </script>
 
 </body>

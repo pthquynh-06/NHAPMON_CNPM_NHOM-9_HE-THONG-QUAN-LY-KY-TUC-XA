@@ -1,15 +1,4 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Ký túc xá Hướng Dương</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-    <style>
-        *{
+ *{
             margin:0;
             padding:0;
             box-sizing:border-box;
@@ -243,151 +232,106 @@
         tr:hover{
             background:#f3f4f6;
         }
-    </style>
-</head>
 
-<body>
 
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
 
-    <div class="toggle-btn" onclick="toggleSidebar()">
-        <i class="fa-solid fa-angle-left" id="toggleIcon"></i>
-    </div>
 
-    <h1>Ký Túc Xá<br>Hướng Dương</h1>
 
-    <ul class="menu">
 
-        <li>
-            <a class="active">
-                <i class="fa-solid fa-house"></i>
-                <span>Tổng quan</span>
-            </a>
-        </li>
-
-        <li class="has-sub">
-            <a onclick="toggleSubmenu(this)">
-                <i class="fa-solid fa-user"></i>
-                <span>Sinh viên</span>
-                <i class="fa-solid fa-chevron-down arrow"></i>
-            </a>
-            <ul class="submenu">
-                <li><a>Danh sách sinh viên</a></li>
-                <li><a>Thêm sinh viên</a></li>
-                <li><a>Tìm kiếm sinh viên</a></li>
-            </ul>
-        </li>
-
-        <li class="has-sub">
-            <a onclick="toggleSubmenu(this)">
-                <i class="fa-solid fa-door-open"></i>
-                <span>Phòng ở</span>
-                <i class="fa-solid fa-chevron-down arrow"></i>
-            </a>
-            <ul class="submenu">
-                <li><a>Danh sách phòng</a></li>
-                <li><a>Phòng trống</a></li>
-                <li><a>Cập nhật trạng thái phòng</a></li>
-            </ul>
-        </li>
-
-        <li class="has-sub">
-            <a onclick="toggleSubmenu(this)">
-                <i class="fa-solid fa-book"></i>
-                <span>Hợp đồng</span>
-                <i class="fa-solid fa-chevron-down arrow"></i>
-            </a>
-            <ul class="submenu">
-                <li><a>Danh sách hợp đồng</a></li>
-                <li><a>Lập hợp đồng</a></li>
-                 <li><a>Sửa hợp đồng</a></li>
-                <li><a>Thanh lý hợp đồng</a></li>
-            </ul>
-        </li>
-
-        <li class="has-sub">
-            <a onclick="toggleSubmenu(this)">
-                <i class="fa-solid fa-file-invoice-dollar"></i>
-                <span>Hóa đơn</span>
-                <i class="fa-solid fa-chevron-down arrow"></i>
-            </a>
-            <ul class="submenu">
-                <li><a>Tạo hóa đơn</a></li>
-                <li><a>Danh sách hóa đơn</a></li>
-                <li><a>Cập nhật trạng thái thanh toán</a></li>
-                <li><a>In hóa đơn</a></li>
-            </ul>
-        </li>
-        <li class="has-sub">
-            <a onclick="toggleSubmenu(this)">
-                <i class="fa-solid fa-headset"></i>
-                <span>Hỗ trợ</span>
-                <i class="fa-solid fa-chevron-down arrow"></i>
-            </a>
-            <ul class="submenu">
-                <li><a>Bảng tiếp nhận yêu cầu</a></li>
-                <li><a>Danh sách yêu cầu</a></li>
-                <li><a>Trạng thái xử lý</a></li>
-            </ul>
-        </li>
-    </ul>
-
-    <div class="logout">
-        <a><i class="fa-solid fa-power-off"></i><span> Đăng xuất</span></a>
-    </div>
-
-</aside>
-
-<!-- MAIN -->
-<main class="main">
-
-    <div class="header">
-        <h2>Tổng quan</h2>
-        <div class="user">Xin chào, nhân viên</div>
-    </div>
-
-    <section class="cards">
-        <div class="card blue"><h3>Phòng đang trống</h3><p>15</p></div>
-        <div class="card purple"><h3>Hợp đồng hiệu lực</h3><p>124</p></div>
-        <div class="card orange"><h3>Yêu cầu hỗ trợ mới</h3><p>5</p></div>
-        <div class="card green"><h3>Hóa đơn cần thu</h3><p>29</p></div>
-    </section>
-
-    <section class="table-box">
-        <h3 style="margin-bottom:15px;">Danh sách sinh viên mới</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Mã SV</th>
-                    <th>Họ tên</th>
-                    <th>Lớp</th>
-                    <th>Ngày thêm</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr><td>SV003</td><td>Ngô Minh C</td><td>CNTT-01</td><td>12/01/2025</td></tr>
-                <tr><td>SV004</td><td>Hoàng Văn D</td><td>CNTT-02</td><td>30/11/2025</td></tr>
-                <tr><td>SV005</td><td>Lê Thị E</td><td>SpTin2B</td><td>30/11/2025</td></tr>
-            </tbody>
-        </table>
-    </section>
-
-</main>
-
-<script>
-function toggleSidebar(){
-    const sidebar = document.getElementById("sidebar");
-    const icon = document.getElementById("toggleIcon");
-    sidebar.classList.toggle("collapsed");
-    icon.classList.toggle("fa-angle-left");
-    icon.classList.toggle("fa-angle-right");
+/* ===== SEARCH SINH VIÊN ===== */
+.search-card{
+    background:#fff;
+    border-radius:12px;
+    padding:30px;
+    max-width:100%;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
 }
 
-function toggleSubmenu(el){
-    el.parentElement.classList.toggle("open");
+.search-card h3{
+    font-weight:700;
+    margin-bottom:20px;
 }
-</script>
 
-</body>
-</html>
+.search-box{
+    display:flex;
+    gap:10px;
+    margin-bottom:25px;
+}
+
+.search-box input{
+    flex:1;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    font-size:16px;
+}
+
+.search-box button{
+    background:#2563eb;
+    color:#fff;
+    border:none;
+    padding:12px 20px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+.search-box button:hover{
+    background:#1d4ed8;
+}
+
+.status-message{
+    margin-top:15px;
+    font-weight:600;
+    color:#4b5563;
+}
+
+.contract-active{
+    color:#16a34a;
+    font-weight:600;
+}
+
+.contract-expired{
+    color:#dc2626;
+    font-weight:600;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Chia làm 2 cột */
+    gap: 20px;
+    margin-top: 20px;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.form-group input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+.actions {
+    margin-top: 30px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+/* Loại bỏ gạch chân cho Đăng xuất và Đổi mật khẩu */
+.logout a {
+    text-decoration: none !important;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: 0.3s;
+}
+
+/* Hiệu ứng hover cho đẹp và chuyên nghiệp */
+.logout a:hover {
+    text-decoration: none !important;
+    background: rgba(248, 113, 113, 0.1); /* Tạo nền mờ màu đỏ khi rê chuột */
+    border-radius: 10px;
+    padding-left: 10px; /* Nhích nhẹ sang phải khi hover */
+}

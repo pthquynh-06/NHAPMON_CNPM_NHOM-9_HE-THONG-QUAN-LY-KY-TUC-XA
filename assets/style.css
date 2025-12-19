@@ -89,7 +89,7 @@
             background:rgba(255,255,255,0.08);
         }
 
-        .menu a.active{
+        .menu a.active, .submenu li a.active{
             background:linear-gradient(90deg,#2563eb,#1d4ed8);
             color:#fff;
         }

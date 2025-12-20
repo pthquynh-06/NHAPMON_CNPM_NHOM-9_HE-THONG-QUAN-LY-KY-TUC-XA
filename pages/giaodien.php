@@ -20,11 +20,14 @@ require_once '../includes/check_login.php';
 <?php include '../includes/chung.php'; ?>
 
 <main class="main">
-
+    <div class="header" style="display: flex; justify-content: flex-end; align-items: center; padding: 10px 20px;">
+        <div class="user-greeting" style="background-color: #2563eb; color: white; padding: 8px 20px; border-radius: 20px; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <i class="fa-solid fa-user"></i> 
+            Xin chào, <?php echo isset($_SESSION['fullname']) ? htmlspecialchars($_SESSION['fullname']) : 'Nhân viên'; ?>
+        </div>
+    </div>
     <div class="header">
         <h2>Tổng quan</h2>
-        <div class="user-greeting" style="background-color: #2563eb; color: white; padding: 8px 15px; border-radius: 20px; font-size: 14px;">
-             Xin chào, <?php echo isset($_SESSION['fullname']) ? htmlspecialchars($_SESSION['fullname']) : 'Khách'; ?></div>
     </div>
 
     <section class="cards">
@@ -45,11 +48,6 @@ require_once '../includes/check_login.php';
                     <th>Ngày thêm</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr><td>SV003</td><td>Ngô Minh C</td><td>CNTT-01</td><td>12/01/2025</td></tr>
-                <tr><td>SV004</td><td>Hoàng Văn D</td><td>CNTT-02</td><td>30/11/2025</td></tr>
-                <tr><td>SV005</td><td>Lê Thị E</td><td>SpTin2B</td><td>30/11/2025</td></tr>
-            </tbody>
         </table>
     </section>
 

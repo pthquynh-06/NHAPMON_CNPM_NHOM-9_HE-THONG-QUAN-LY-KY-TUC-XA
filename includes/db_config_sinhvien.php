@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$conn = new mysqli("localhost", "root", "", "quanlynguoidung");
+$conn = new mysqli("localhost", "root", "", "quanlysinhvien");
 $conn->set_charset("utf8");
 
 if ($conn->connect_error) {

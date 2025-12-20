@@ -13,7 +13,7 @@ $search = $_GET['query'] ?? '';
 $php_results = [];
 
 // Truy vấn: Nếu $search trống, LIKE '%%' sẽ lấy tất cả bản ghi
-$sql = "SELECT * FROM sinhvien WHERE hoten LIKE ? OR mssv LIKE ? OR sophong LIKE ? OR lop LIKE ?";
+$sql = "SELECT * FROM sinhvien WHERE hoten LIKE ? OR mssv LIKE ? OR sophong LIKE ? OR truong LIKE ?";
 $stmt = $conn->prepare($sql);
 $searchTerm = "%$search%";
 $stmt->bind_param("ssss", $searchTerm, $searchTerm, $searchTerm, $searchTerm);
@@ -68,7 +68,7 @@ $php_results = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     <th>Mã SV</th>
                     <th>Họ tên</th>
                     <th>Phòng</th>
-                    <th>Lớp</th>
+                    <th>Trường</th>
                     <th>Hợp đồng</th>
                 </tr>
             </thead>
@@ -79,7 +79,7 @@ $php_results = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                             <td><?= htmlspecialchars($sv['mssv']) ?></td>
                             <td><?= htmlspecialchars($sv['hoten']) ?></td>
                             <td><?= htmlspecialchars($sv['sophong']) ?></td>
-                            <td><?= htmlspecialchars($sv['lop']) ?></td>
+                            <td><?= htmlspecialchars($sv['truong']) ?></td>
                             <td class="<?= $sv['contract_status'] == 1 ? 'contract-active' : 'contract-expired' ?>">
                                 <?= $sv['contract_status'] == 1 ? 'CÓ' : 'KHÔNG' ?>
                             </td>

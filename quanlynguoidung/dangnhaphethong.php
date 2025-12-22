@@ -1,6 +1,6 @@
 <?php
 // 1. Nhúng file cấu hình (Đảm bảo đường dẫn này đúng với file của bạn
-require_once '../includes/db_config.php';
+require_once '../includes/db_config_nguoidung.php';
 
 // 2. Xử lý Đăng xuất
 if (isset($_GET['logout'])) {

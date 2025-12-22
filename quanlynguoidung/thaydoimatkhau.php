@@ -8,7 +8,7 @@ if(!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']){
 }
 
 // 2. KẾT NỐI DATABASE
-require_once '../includes/db_config.php';
+require_once '../includes/db_config_nguoidung.php';
 
 // KHỞI TẠO BIẾN (Quan trọng: Để tránh lỗi Undefined variable $error)
 $error = ""; 

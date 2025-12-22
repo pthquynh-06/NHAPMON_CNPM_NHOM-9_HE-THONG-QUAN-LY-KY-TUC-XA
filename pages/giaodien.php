@@ -20,11 +20,11 @@ require_once '../includes/check_login.php';
 <?php include '../includes/chung.php'; ?>
 
 <main class="main">
-
-    <div class="header">
-        <h2>Tổng quan</h2>
-        <div class="user-greeting" style="background-color: #2563eb; color: white; padding: 8px 15px; border-radius: 20px; font-size: 14px;">
-             Xin chào, <?php echo isset($_SESSION['fullname']) ? htmlspecialchars($_SESSION['fullname']) : 'Khách'; ?></div>
+    <div class="header" style="display: flex; justify-content: flex-end; align-items: center; padding: 10px 20px;">
+        <div class="user-greeting" style="background-color: #2563eb; color: white; padding: 8px 20px; border-radius: 20px; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <i class="fa-solid fa-user"></i> 
+            Xin chào, <?php echo isset($_SESSION['fullname']) ? htmlspecialchars($_SESSION['fullname']) : 'Nhân viên'; ?>
+        </div>
     </div>
 
     <section class="cards">
@@ -39,20 +39,46 @@ require_once '../includes/check_login.php';
         <table>
             <thead>
                 <tr>
-                    <th>Mã SV</th>
+                    <th>MSV</th>
                     <th>Họ tên</th>
-                    <th>Lớp</th>
-                    <th>Ngày thêm</th>
+                    <th>Phòng</th>
+                    <th>Ngày bắt đầu</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td>SV003</td><td>Ngô Minh C</td><td>CNTT-01</td><td>12/01/2025</td></tr>
-                <tr><td>SV004</td><td>Hoàng Văn D</td><td>CNTT-02</td><td>30/11/2025</td></tr>
-                <tr><td>SV005</td><td>Lê Thị E</td><td>SpTin2B</td><td>30/11/2025</td></tr>
-            </tbody>
-        </table>
-    </section>
+            <?php
+            // Kết nối database
+            $conn = mysqli_connect("localhost", "root", "", "quanlysinhvien");
+            
+            if ($conn) {
+                mysqli_set_charset($conn, "utf8");
 
+                // Truy vấn 5 sinh viên mới nhất (sử dụng tên cột mssv, hoten, sophong, ngaybatdau theo dữ liệu của bạn)
+                $sql = "SELECT mssv, hoten, sophong, ngaybatdau FROM sinhvien ORDER BY ngaybatdau DESC LIMIT 5";
+                $result = mysqli_query($conn, $sql);
+
+                if ($result && mysqli_num_rows($result) > 0) {
+                    while($row = mysqli_fetch_assoc($result)) {
+                        echo "<tr>";
+                        echo "<td>" . htmlspecialchars($row['mssv']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['hoten']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['sophong']) . "</td>";
+                        echo "<td>" . date("d/m/Y", strtotime($row['ngaybatdau'])) . "</td>";
+                        echo "</tr>";
+                    }
+                } else {
+                    echo "<tr><td colspan='4' style='text-align:center;'>Chưa có dữ liệu sinh viên.</td></tr>";
+                }
+                
+                // Đóng kết nối ngay để tránh treo sidebar
+                mysqli_close($conn);
+            } else {
+                echo "<tr><td colspan='4' style='text-align:center;'>Lỗi kết nối database.</td></tr>";
+            }
+            ?>
+        </tbody>
+    </table>
+</section>
 </main>
 
 <script src="../assets/app.js"></script>

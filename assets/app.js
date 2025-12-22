@@ -8,27 +8,38 @@ function toggleSidebar() {
 }
 
 function toggleSubmenu(el) {
-    el.parentElement.classList.toggle("open");
-}
+    // 1. Tìm thẻ <li> cha có class 'has-sub' gần nhất
+    const parentLi = el.closest('.has-sub');
+    if (!parentLi) return;
 
-/* ===== XỬ LÝ MÀU XANH (ACTIVE) VÀ CHUYỂN TRANG ===== */
-document.querySelectorAll('.menu a').forEach(item => {
-    item.addEventListener('click', function(e) {
-        // Nếu là link có địa chỉ thật (như giaodien.php, themsv.php)
-        // thì KHÔNG dùng e.preventDefault() để trang được load lại
-        const href = this.getAttribute('href');
-        if (href && href !== '#') {
-            return; // Cho phép trình duyệt nhảy trang
-        }
+    // 2. Kiểm tra trạng thái hiện tại (đang mở hay đóng)
+    const isOpen = parentLi.classList.contains("open");
 
-        // Nếu là menu có submenu (như mục "Sinh viên")
-        document.querySelectorAll('.menu a').forEach(nav => nav.classList.remove('active'));
-        this.classList.add('active');
+    // 3. XỬ LÝ ĐÓNG CÁC MỤC KHÁC
+    document.querySelectorAll('.has-sub').forEach(li => {
+        // Đóng tất cả các menu con khác
+        li.classList.remove("open");
         
-        const headerTitle = document.querySelector('.header h2');
-        if (headerTitle) headerTitle.innerText = ''; 
+        // Gỡ bỏ class 'active' của các tiêu đề cha khác
+        const mainLink = li.querySelector('a');
+        if (mainLink) mainLink.classList.remove("active");
     });
-});
+
+    // 4. XỬ LÝ MỤC ĐƯỢC NHẤN
+    if (!isOpen) {
+        // Nếu mục đang đóng -> Mở nó ra và tô xanh
+        parentLi.classList.add("open");
+        el.classList.add("active");
+
+        // Đảm bảo mục "Tổng quan" bị mất màu xanh khi mở một mục cha
+        const tongQuan = document.querySelector('.menu > li > a[href="giaodien.php"]');
+        if (tongQuan) tongQuan.classList.remove("active");
+    } else {
+        // Nếu mục đang mở mà nhấn vào -> Đóng lại và gỡ xanh
+        parentLi.classList.remove("open");
+        el.classList.remove("active");
+    }
+}
 
 /* ===== GIỮ NGUYÊN CÁC HÀM DATA CỦA BẠN ===== */
 function displayInitialData() {
@@ -37,4 +48,3 @@ function displayInitialData() {
     const data = Object.keys(mockData).map(k => ({ mssv: k, ...mockData[k] }));
     render(data);
 }
-// ... Các hàm render, performSearch, deleteSV của bạn giữ nguyên ...

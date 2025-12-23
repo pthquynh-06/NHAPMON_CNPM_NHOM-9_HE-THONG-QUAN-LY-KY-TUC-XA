@@ -178,6 +178,27 @@ if (isset($_POST['them_sv'])) {
             </div>
         </form>
     </div>
+     <?php if (isset($show_success_modal) && $show_success_modal): ?>
+    <div id="successModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 9999;">
+        <div style="background: white; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-width: 400px; width: 90%;">
+            <div style="color: #22c55e; font-size: 50px; margin-bottom: 15px;">
+               <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 style="margin-bottom: 10px; color: #1f2937;">Thành công!</h2>
+            <p style="color: #6b7280; margin-bottom: 25px;">Đã cập nhật sinh viên mới vào hệ thống</p>
+            <button onclick="window.location.href='themsv.php'" 
+                    style="background: #2563eb; color: white; border: none; padding: 10px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s;">
+               OK
+            </button>
+        </div>
+    </div>
+    <style>
+    @keyframes modalFadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    </style>
+    <?php endif; ?>
 </main>
 </body>
 </html>

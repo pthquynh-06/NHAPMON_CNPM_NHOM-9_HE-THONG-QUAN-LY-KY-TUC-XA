@@ -1,3 +1,79 @@
+<?php 
+require_once '../includes/check_login.php'; 
+require_once '../includes/db_config_sinhvien.php'; 
+
+// Khởi tạo mảng lưu lỗi cho từng ô
+$errors = [];
+
+if (isset($_POST['them_sv'])) {
+    // 1. NHẬN VÀ LÀM SẠCH DỮ LIỆU (Sanitization)
+    // Dùng htmlspecialchars để ngăn chặn các thẻ script lạ
+    $mssv        = htmlspecialchars(trim($_POST['mssv']));    
+    $hoten       = htmlspecialchars(trim($_POST['fullname']));
+    $ngaysinh    = $_POST['dob'];
+    $gioitinh    = $_POST['gender'];
+    $cccd        = htmlspecialchars(trim($_POST['cccd']));
+    $email       = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL); // Làm sạch email
+    $sdt         = htmlspecialchars(trim($_POST['phone']));
+    $quequan     = htmlspecialchars(trim($_POST['hometown']));
+    $truong      = isset($_POST['school']) ? htmlspecialchars(trim($_POST['school'])) : ''; 
+    $sophong     = isset($_POST['sophong']) ? htmlspecialchars(trim($_POST['sophong'])) : '';
+    $ngaybatdau  = $_POST['start_date'];
+    // 1. Kiểm tra bắt buộc bằng PHP
+    if (empty($hoten)) $errors['fullname'] = "Họ tên không được để trống!";
+    if (empty($mssv)) $errors['mssv'] = "Mã sinh viên không được để trống!";
+    if (empty($ngaysinh)) $errors['dob'] = "Ngày sinh không được để trống!";
+    if (empty($cccd)) $errors['cccd'] = "CCCD không được để trống!";
+    if (empty($sdt)) $errors['phone'] = "Số điện thoại không được để trống!";
+    if (empty($truong)) $errors['school'] = "Trường không được để trống!";
+    if (empty($sophong)) $errors['sophong'] = "Số phòng không được để trống!";
+    if (empty($ngaybatdau)) $errors['start_date'] = "Ngày bắt đầu không được để trống!";
+
+    // 2. Kiểm tra lỗi chính tả họ tên
+    if (!empty($hoten)) {
+        $hop_le = true;
+        if (preg_match('/[0-9]/', $hoten)) {
+            $hop_le = false;
+        } else {
+            $words = explode(' ', $hoten);
+            foreach ($words as $w) {
+                if (empty($w)) continue;
+                $first = mb_substr($w, 0, 1, 'UTF-8');
+                $rest  = mb_substr($w, 1, null, 'UTF-8');
+                if (mb_strtoupper($first, 'UTF-8') !== $first || mb_strtolower($rest, 'UTF-8') !== $rest) {
+                    $hop_le = false; break;
+                }
+            }
+        }
+        if (!$hop_le) $errors['fullname'] = "Họ tên sai định dạng!";
+    }
+
+    // 3. Kiểm tra trùng MSSV
+    if (empty($errors)) {
+        $check = $conn->prepare("SELECT mssv FROM sinhvien WHERE mssv = ?");
+        $check->bind_param("s", $mssv);
+        $check->execute();
+        $check->store_result();
+        if ($check->num_rows > 0) {
+            $errors['mssv'] = "MSSV này đã tồn tại trên hệ thống!";
+        }
+        $check->close();
+    }
+
+    // 4. Thực hiện INSERT
+    if (empty($errors)) {
+        $sql = $conn->prepare("INSERT INTO sinhvien (mssv, hoten, ngaysinh, truong, sophong,gioitinh,cccd, email,sodienthoai,quequan,ngaybatdau) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $sql->bind_param("sssssssssss", $mssv, $hoten, $ngaysinh, $truong, $sophong, $gioitinh, $cccd, $email, $sdt, $quequan, $ngaybatdau);
+ 
+        if ($sql->execute()) {
+            $show_success_modal = true; // Kích hoạt biến hiển thị modal thành công
+        } else {
+            $errors['system'] = "Lỗi hệ thống: " . $conn->error;
+        }
+        $sql->close();
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>

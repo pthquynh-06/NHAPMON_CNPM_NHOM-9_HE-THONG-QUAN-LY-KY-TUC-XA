@@ -7,6 +7,8 @@ if(!isset($_SESSION['loggedin'])){
     exit;
 }
 
+$sql = "SELECT * FROM sinhvien ORDER BY mssv ASC";
+
 // --- XỬ LÝ TÌM KIẾM ---
 $search = $_GET['search'] ?? ''; 
 if (!empty($search)) {
@@ -17,7 +19,6 @@ if (!empty($search)) {
     $stmt->execute();
     $result = $stmt->get_result();
 } else {
-    $sql = "SELECT * FROM sinhvien ORDER BY mssv ASC";
     $result = mysqli_query($conn, $sql);
 }
 ?>

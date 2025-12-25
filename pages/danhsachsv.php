@@ -1,3 +1,14 @@
+<?php 
+require_once '../includes/check_login.php'; 
+require_once '../includes/db_config_sinhvien.php'; 
+
+if(!isset($_SESSION['loggedin'])){
+    header("Location: ../quanlynguoidung/dangnhaphethong.php");
+    exit;
+}
+
+$sql = "SELECT * FROM sinhvien ORDER BY mssv ASC";
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -65,6 +76,7 @@
                     </td>
                         <td class="c-cccd"><?php echo htmlspecialchars($row['cccd']); ?></td>
                         <td class="c-quequan"><?php echo htmlspecialchars($row['quequan']); ?></td>
-                        <td class="c-ngaybatdau" data-raw="<?php echo $row['ngaybatdau']; ?>"><?php echo date('d/m/Y', strtotime($row['ngaybatdau'])); ?></td>
+                        <td class="c-ngaybatdau" data-raw="<?php echo $row['ngaybatdau']; ?>"><?php echo date('d/m/Y', strtotime($row['ngaybatdau'])); ?>
                         </td>
-                </tr>
+                </tr>  
+                 

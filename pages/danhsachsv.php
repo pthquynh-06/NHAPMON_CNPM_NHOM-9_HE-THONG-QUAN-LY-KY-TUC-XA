@@ -49,6 +49,17 @@ if (!empty($search)) {
         /* MODAL CHUNG */
         .nen-mo, .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 9999; }
         .o-trang, .modal-box { background: white; padding: 35px; border-radius: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); animation: hienLen 0.25s ease-out; }
+        /* MODAL SỬA (Rộng - Grid) */
+        .modal-box { width: 90%; max-width: 750px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; text-align: left; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px; }
+        .form-group input, .form-group select { padding: 10px; border: 1.4px solid #d1dae4; border-radius: 8px; outline: none; font-size: 14px; }
+        .form-group input:focus { border-color: #2563eb; }
+
+        .nut-huy, .btn-cancel { background: #f3f4f6; color: #374151; }  
+        
+        @keyframes hienLen { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body>
@@ -104,9 +115,11 @@ if (!empty($search)) {
                     </td>
                         <td class="c-cccd"><?php echo htmlspecialchars($row['cccd']); ?></td>
                         <td class="c-quequan"><?php echo htmlspecialchars($row['quequan']); ?></td>
-                        <td class="c-ngaybatdau" data-raw="<?php echo $row['ngaybatdau']; ?>"><?php echo date('d/m/Y', strtotime($row['ngaybatdau'])); ?>
-                        </td>
-                </tr>  
+                        <td class="c-ngaybatdau" data-raw="<?php echo $row['ngaybatdau']; ?>"><?php echo date('d/m/Y', strtotime($row['ngaybatdau'])); ?></td>
+
+                        <i class="fa-solid fa-pen-to-square action-icon" style="color: #2563eb;" onclick="openEditModal('<?php echo $mssv; ?>')"></i>
+            
+                    </tr>  
                 <?php endwhile; else: ?>
                     <tr>
                         <td colspan="9" style="text-align: center; padding: 50px; color: #94a3b8; font-size: 16px;">
@@ -119,3 +132,34 @@ if (!empty($search)) {
         </table>
     </div>
 </main> 
+
+<div id="editModal" class="modal-overlay">
+    <div class="modal-box">
+        <h3 style="border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 10px;">Chỉnh sửa thông tin sinh viên</h3>
+        <form id="formEdit">
+            <div class="form-grid">
+                <div class="form-group"><label>Mã sinh viên (MSV)</label><input type="text" id="edit-mssv" name="mssv" readonly style="background:#f8fafc"></div>
+                <div class="form-group"><label>Họ tên</label><input type="text" id="edit-hoten" name="hoten"></div>
+                <div class="form-group">
+                    <label>Giới tính</label>
+                    <select id="edit-gioitinh" name="gioitinh">
+                        <option value="Nam">Nam</option>
+                        <option value="Nữ">Nữ</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Ngày sinh</label><input type="date" id="edit-ngaysinh" name="ngaysinh"></div>
+                <div class="form-group"><label>Số CCCD</label><input type="text" id="edit-cccd" name="cccd"></div>
+                <div class="form-group"><label>Số điện thoại</label><input type="text" id="edit-sdt" name="sodienthoai"></div>
+                <div class="form-group"><label>Số phòng</label><input type="text" id="edit-phong" name="sophong"></div>
+                <div class="form-group"><label>Trường</label><input type="text" id="edit-truong" name="truong"></div>
+                <div class="form-group"><label>Email</label><input type="email" id="edit-email" name="email"></div>
+                <div class="form-group"><label>Quê quán</label><input type="text" id="edit-quequan" name="quequan"></div>
+                <div class="form-group"><label>Ngày bắt đầu</label><input type="date" id="edit-ngaybatdau" name="ngaybatdau"></div>
+            </div>
+            <div class="btn-group" style="justify-content: flex-end;">
+                <button type="button" class="btn btn-cancel" onclick="dongModalSua()">Hủy</button>
+                <button type="submit" class="btn btn-confirm">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>

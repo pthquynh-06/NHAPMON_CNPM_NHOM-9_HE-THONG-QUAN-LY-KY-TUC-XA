@@ -168,6 +168,26 @@ if (!empty($search)) {
     </div>
 </div>
  
+<div id="modalXacNhan" class="nen-mo">
+    <div class="o-trang">
+        <div style="color: #f59e0b; font-size: 55px; margin-bottom: 15px;"><i class="fas fa-question-circle"></i></div>
+        <h2>Xác nhận xóa</h2>
+        <p style="color: #6b7280; margin-bottom: 25px;">Bạn có chắc chắn muốn xóa sinh viên này?</p>
+        <div style="display: flex; justify-content: center;">
+            <button class="nut-modal nut-huy" onclick="dongXacNhan()">Hủy</button>
+            <button id="btnConfirmDelete" class="nut-modal nut-xoa">Đồng ý</button>
+        </div>
+    </div>
+</div>
+
+<div id="modalThanhCongXoa" class="nen-mo">
+    <div class="o-trang">
+        <div style="color: #1adb5aff; font-size: 55px; margin-bottom: 15px;"><i class="fas fa-check-circle"></i></div>
+        <h2>Thành công!</h2>
+        <p>Đã xóa sinh viên ra khỏi hệ thống</p>
+        <button class="nut-modal nut-xoa" onclick="location.reload()">Đóng</button>
+    </div>
+</div>
 
 <script>
 

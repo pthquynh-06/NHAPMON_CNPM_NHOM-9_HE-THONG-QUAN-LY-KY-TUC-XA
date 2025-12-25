@@ -7,8 +7,21 @@ if(!isset($_SESSION['loggedin'])){
     exit;
 }
 
-$sql = "SELECT * FROM sinhvien ORDER BY mssv ASC";
+// --- XỬ LÝ TÌM KIẾM ---
+$search = $_GET['search'] ?? ''; 
+if (!empty($search)) {
+    $sql = "SELECT * FROM sinhvien WHERE hoten LIKE ? OR mssv LIKE ? OR sophong LIKE ? OR truong LIKE ? ORDER BY mssv DESC";
+    $stmt = $conn->prepare($sql);
+    $searchTerm = "%$search%";
+    $stmt->bind_param("ssss", $searchTerm, $searchTerm, $searchTerm, $searchTerm);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    $sql = "SELECT * FROM sinhvien ORDER BY mssv ASC";
+    $result = mysqli_query($conn, $sql);
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>

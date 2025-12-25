@@ -57,8 +57,11 @@ if (!empty($search)) {
         .form-group input, .form-group select { padding: 10px; border: 1.4px solid #d1dae4; border-radius: 8px; outline: none; font-size: 14px; }
         .form-group input:focus { border-color: #2563eb; }
 
+        .btn-group { display: flex; gap: 10px; margin-top: 25px; }
+        .nut-modal, .btn { padding: 12px 25px; border-radius: 10px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; font-size: 14px; }
         .nut-huy, .btn-cancel { background: #f3f4f6; color: #374151; }  
-        
+        .nut-xoa, .btn-confirm { background: #2563eb; color: white; }
+
         @keyframes hienLen { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
@@ -116,8 +119,10 @@ if (!empty($search)) {
                         <td class="c-cccd"><?php echo htmlspecialchars($row['cccd']); ?></td>
                         <td class="c-quequan"><?php echo htmlspecialchars($row['quequan']); ?></td>
                         <td class="c-ngaybatdau" data-raw="<?php echo $row['ngaybatdau']; ?>"><?php echo date('d/m/Y', strtotime($row['ngaybatdau'])); ?></td>
-
-                        <i class="fa-solid fa-pen-to-square action-icon" style="color: #2563eb;" onclick="openEditModal('<?php echo $mssv; ?>')"></i>
+                        <td style="text-align: center; white-space: nowrap;">
+                            <i class="fa-solid fa-pen-to-square action-icon" style="color: #2563eb;" onclick="openEditModal('<?php echo $mssv; ?>')"></i>
+                            <i class="fa-solid fa-trash action-icon" style="color: #ef4444;" onclick="moXacNhanXoa('<?php echo $mssv; ?>')"></i>
+                        </td>
             
                     </tr>  
                 <?php endwhile; else: ?>

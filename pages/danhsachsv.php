@@ -167,3 +167,31 @@ if (!empty($search)) {
         </form>
     </div>
 </div>
+ 
+
+<script>
+
+// 4. LOGIC XÓA (GIỮ NGUYÊN CÓ THÔNG BÁO NHƯ BẠN MUỐN)
+function moXacNhanXoa(mssv) {
+    document.getElementById('modalXacNhan').style.display = 'flex';
+    document.getElementById('btnConfirmDelete').onclick = function() {
+        fetch('xoasinhvien.php?id=' + mssv)
+        .then(() => {
+            document.getElementById('modalXacNhan').style.display = 'none';
+            document.getElementById('modalThanhCongXoa').style.display = 'flex';
+        });
+    };
+}
+
+function dongXacNhan() {
+    document.getElementById('modalXacNhan').style.display = 'none';
+}
+
+// Đóng modal khi click ra ngoài
+window.onclick = function(event) {
+    if (event.target.className === 'modal-overlay') dongModalSua();
+    if (event.target.className === 'nen-mo') dongXacNhan();
+}
+</script>
+</body>
+</html>

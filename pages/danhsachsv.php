@@ -46,9 +46,18 @@ if (!empty($search)) {
         .action-icon { font-size: 18px; cursor: pointer; transition: 0.2s; margin-right: 12px; }
         .action-icon:hover { transform: scale(1.2); }
 
+        .error-message {
+            color: #dc3545;
+            font-size: 11px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
         /* MODAL CHUNG */
         .nen-mo, .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 9999; }
         .o-trang, .modal-box { background: white; padding: 35px; border-radius: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); animation: hienLen 0.25s ease-out; }
+        /* MODAL XÓA (Nhỏ) */
+        .o-trang { text-align: center; max-width: 420px; width: 90%; }
         /* MODAL SỬA (Rộng - Grid) */
         .modal-box { width: 90%; max-width: 750px; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; text-align: left; }
@@ -190,7 +199,124 @@ if (!empty($search)) {
 </div>
 
 <script>
+// 1. Hàm chuẩn hóa tên: trần anh tú -> Trần Anh Tú
+function chuanHoaTen(str) {
+    return str.toLowerCase().replace(/(^|\s)\S/g, function(l) {
+        return l.toUpperCase();
+    });
+}
 
+// Tự động chuẩn hóa khi người dùng nhập tên trong Modal Sửa
+document.getElementById('edit-hoten').addEventListener('blur', function() {
+    this.value = chuanHoaTen(this.value);
+});
+
+// 2. Logic Mở Modal Sửa (Giữ nguyên việc lấy dữ liệu từ hàng)
+function openEditModal(mssv) {
+    const row = document.getElementById('row-' + mssv);
+    
+    document.getElementById('edit-mssv').value = mssv;
+    document.getElementById('edit-hoten').value = row.querySelector('.c-hoten').innerText;
+    document.getElementById('edit-gioitinh').value = row.querySelector('.c-gioitinh').innerText.trim();
+    document.getElementById('edit-ngaysinh').value = row.querySelector('.c-ngaysinh').getAttribute('data-raw');
+    document.getElementById('edit-cccd').value = row.querySelector('.c-cccd').innerText;
+    document.getElementById('edit-sdt').value = row.querySelector('.c-sdt').innerText;
+    document.getElementById('edit-phong').value = row.querySelector('.c-sophong').innerText;
+    document.getElementById('edit-truong').value = row.querySelector('.c-truong').innerText;
+    document.getElementById('edit-email').value = row.querySelector('.c-email').innerText;
+    document.getElementById('edit-quequan').value = row.querySelector('.c-quequan').innerText;
+    document.getElementById('edit-ngaybatdau').value = row.querySelector('.c-ngaybatdau').getAttribute('data-raw');
+
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+function dongModalSua() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+// 3. Logic Gửi Form Sửa: TỰ RELOAD NGAY, KHÔNG HIỆN THÔNG BÁO
+// Hàm xóa trạng thái lỗi
+function clearErrorState(inputName) {
+    const input = document.getElementsByName(inputName)[0];
+    if (input) {
+        input.classList.remove('is-invalid');
+        const errorMsg = input.parentNode.querySelector('.error-text');
+        if (errorMsg) errorMsg.remove();
+    }
+}
+
+// Lắng nghe sự kiện nhập liệu để xóa lỗi tự động
+const inputs = ['hoten', 'cccd', 'sodienthoai', 'email', 'sophong', 'ngaysinh', 'ngaybatdau'];
+inputs.forEach(name => {
+    const el = document.getElementsByName(name)[0];
+    if (el) {
+        el.addEventListener('input', function() {
+            const val = this.value.trim();
+            let isValid = val !== "";
+            
+            // AC03: Kiểm tra định dạng riêng để xóa lỗi ngay khi gõ đúng
+            if (name === 'email') {
+                // Regex yêu cầu abc@gmail.com (đuôi phải từ 3 ký tự trở lên để bắt lỗi .co, .c)
+                isValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{3,}$/.test(val);
+            } else if (name === 'cccd') {
+                isValid = /^[0-9]{12}$/.test(val); // AC03: CCCD 12 số
+            } else if (name === 'sodienthoai') {
+                isValid = /^(0[3|5|7|8|9])[0-9]{8}$/.test(val); // AC03: SĐT 10 số
+            }
+
+            if (isValid) clearErrorState(name); // Tự động mất chữ đỏ khi điền đúng
+        });
+    }
+});
+
+// Xử lý gửi Form
+document.getElementById('formEdit').onsubmit = async function(e) {
+    e.preventDefault();
+    
+    // Xóa tất cả thông báo lỗi cũ trước khi gửi yêu cầu mới
+    document.querySelectorAll('.error-text').forEach(el => el.remove());
+    document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+    try {
+        const response = await fetch('suasinhvien.php', { 
+            method: 'POST', 
+            body: new FormData(this) 
+        });
+        
+        // AC07: Lỗi kết nối server (404/500)
+        if (!response.ok) throw new Error("Hệ thống: Lỗi kết nối (Mã lỗi: " + response.status + ")");
+
+        const result = await response.json(); //
+
+        if (result.success) {
+            location.reload(); // AC05: Lưu thay đổi thành công
+        } else {
+            // Hiển thị lỗi dưới từng ô nhập liệu
+            for (const [field, message] of Object.entries(result.errors)) {
+                if (field === 'system_error') {
+                    // AC07: Xử lý lỗi hệ thống hoặc trùng lặp (AC04)
+                    alert("Thông báo hệ thống: " + message);
+                } else {
+                    const input = document.getElementsByName(field)[0];
+                    if (input) {
+                        input.classList.add('is-invalid'); // Thêm viền đỏ
+                        
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'error-text';
+                        // Màu đỏ theo mã c13947ff bạn yêu cầu
+                        errorDiv.style.cssText = "color: #c13947; font-size: 11px; margin-top: 4px; font-weight: bold;";
+                        errorDiv.innerText = message;
+                        
+                        input.parentNode.appendChild(errorDiv); // Chèn thông báo dưới ô nhập liệu
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        // AC07: Bắt các lỗi JavaScript hoặc lỗi mạng
+        alert("AC07 - Lỗi hệ thống: " + error.message);
+    }
+};
 // 4. LOGIC XÓA (GIỮ NGUYÊN CÓ THÔNG BÁO NHƯ BẠN MUỐN)
 function moXacNhanXoa(mssv) {
     document.getElementById('modalXacNhan').style.display = 'flex';

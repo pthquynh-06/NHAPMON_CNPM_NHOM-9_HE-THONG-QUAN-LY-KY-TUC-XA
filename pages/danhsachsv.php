@@ -21,11 +21,6 @@ if (!empty($search)) {
     $searchTerm = "%$search%";
     $stmt->bind_param("ssss", $searchTerm, $searchTerm, $searchTerm, $searchTerm);
     $stmt->execute();
-
-    if ($stmt->errno) {
-        die("system_error");
-    }
-    
     $result = $stmt->get_result();
 } else {
     $result = mysqli_query($conn, $sql);

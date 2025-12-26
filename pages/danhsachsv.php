@@ -1,14 +1,32 @@
 <?php 
 require_once '../includes/check_login.php'; 
 require_once '../includes/db_config_sinhvien.php'; 
-
+// ===== XỬ LÝ LỖI HỆ THỐNG: KẾT NỐI CSDL =====
+if (!isset($conn) || $conn->connect_error) {
+    die("system_error");
+}
 if(!isset($_SESSION['loggedin'])){
     header("Location: ../quanlynguoidung/dangnhaphethong.php");
     exit;
 }
 
-$sql = "SELECT * FROM sinhvien ORDER BY mssv ASC";
+$sql = "SELECT * FROM sinhvien ORDER BY CAST(SUBSTRING(mssv, 3) AS UNSIGNED) ASC";
+
+// --- XỬ LÝ TÌM KIẾM ---
+$search = $_GET['search'] ?? ''; 
+if (!empty($search)) {
+    $sql = "SELECT * FROM sinhvien WHERE hoten LIKE ? OR mssv LIKE ? OR sophong LIKE ? OR truong LIKE ? ORDER BYCAST(SUBSTRING(mssv, 3) AS UNSIGNED) ASC";
+    $stmt = $conn->prepare($sql);
+    $searchTerm = "%$search%";
+    $stmt->bind_param("ssss", $searchTerm, $searchTerm, $searchTerm, $searchTerm);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    $result = mysqli_query($conn, $sql);
+}
+
 ?>
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -32,9 +50,32 @@ $sql = "SELECT * FROM sinhvien ORDER BY mssv ASC";
         .action-icon { font-size: 18px; cursor: pointer; transition: 0.2s; margin-right: 12px; }
         .action-icon:hover { transform: scale(1.2); }
 
+        .error-message {
+            color: #dc3545;
+            font-size: 11px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
         /* MODAL CHUNG */
         .nen-mo, .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 9999; }
         .o-trang, .modal-box { background: white; padding: 35px; border-radius: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); animation: hienLen 0.25s ease-out; }
+        /* MODAL XÓA (Nhỏ) */
+        .o-trang { text-align: center; max-width: 420px; width: 90%; }
+        /* MODAL SỬA (Rộng - Grid) */
+        .modal-box { width: 90%; max-width: 750px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; text-align: left; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px; }
+        .form-group input, .form-group select { padding: 10px; border: 1.4px solid #d1dae4; border-radius: 8px; outline: none; font-size: 14px; }
+        .form-group input:focus { border-color: #2563eb; }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 25px; }
+        .nut-modal, .btn { padding: 12px 25px; border-radius: 10px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; font-size: 14px; }
+        .nut-huy, .btn-cancel { background: #f3f4f6; color: #374151; }  
+        .nut-xoa, .btn-confirm { background: #2563eb; color: white; }
+
+        @keyframes hienLen { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body>
@@ -47,6 +88,20 @@ $sql = "SELECT * FROM sinhvien ORDER BY mssv ASC";
     </div>
     
     <div class="table-container-card">
+        <div style="margin-bottom: 25px;">
+            <form method="GET" action="danhsachsv.php" style="display: flex; gap: 10px;">
+                <div style="position: relative; flex: 1;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                    <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="Nhập tên, mã SV, phòng hoặc trường..." 
+                        style="width: 100%; padding: 12px 15px 12px 45px; border-radius: 12px; border: 1.4px solid #d1dae4; outline: none;">
+                </div>
+                <button type="submit" style="padding: 0 25px; background: #2563eb; color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer;">Tìm kiếm</button>
+                
+                <?php if($search != ''): ?>
+                    <a href="danhsachsv.php" style="padding: 12px 15px; background: #f1f5f9; color: #475569; border-radius: 11px; text-decoration: none; font-size: 14px; display: flex; align-items: center;">Hủy lọc</a>
+                <?php endif; ?>
+            </form>
+        </div>
         <table class="student-table">
             <thead>
                 <tr>
@@ -76,7 +131,217 @@ $sql = "SELECT * FROM sinhvien ORDER BY mssv ASC";
                     </td>
                         <td class="c-cccd"><?php echo htmlspecialchars($row['cccd']); ?></td>
                         <td class="c-quequan"><?php echo htmlspecialchars($row['quequan']); ?></td>
-                        <td class="c-ngaybatdau" data-raw="<?php echo $row['ngaybatdau']; ?>"><?php echo date('d/m/Y', strtotime($row['ngaybatdau'])); ?>
-                        </td>
+                        <td class="c-ngaybatdau" data-raw="<?php echo $row['ngaybatdau']; ?>"><?php echo date('d/m/Y', strtotime($row['ngaybatdau'])); ?></td>
+                        <td style="text-align: center; white-space: nowrap;">
+                            <i class="fa-solid fa-pen-to-square action-icon" style="color: #2563eb;" onclick="openEditModal('<?php echo $mssv; ?>')"></i>
+                            <i class="fa-solid fa-trash action-icon" style="color: #ef4444;" onclick="moXacNhanXoa('<?php echo $mssv; ?>')"></i>
+                    </td>
                 </tr>  
-                 
+                <?php endwhile; else: ?>
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 50px; color: #94a3b8; font-size: 16px;">
+                            <i class="fa-solid fa-user-slash" style="font-size: 40px; display: block; margin-bottom: 10px; opacity: 0.5;"></i>
+                            Không tìm thấy sinh viên 
+                        </td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</main> 
+
+<div id="editModal" class="modal-overlay">
+    <div class="modal-box">
+        <h3 style="border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 10px;">Chỉnh sửa thông tin sinh viên</h3>
+        <form id="formEdit">
+            <div class="form-grid">
+                <div class="form-group"><label>Mã sinh viên (MSV)</label><input type="text" id="edit-mssv" name="mssv" readonly style="background:#f8fafc"></div>
+                <div class="form-group"><label>Họ tên</label><input type="text" id="edit-hoten" name="hoten"></div>
+                <div class="form-group">
+                    <label>Giới tính</label>
+                    <select id="edit-gioitinh" name="gioitinh">
+                        <option value="Nam">Nam</option>
+                        <option value="Nữ">Nữ</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Ngày sinh</label><input type="date" id="edit-ngaysinh" name="ngaysinh"></div>
+                <div class="form-group"><label>Số CCCD</label><input type="text" id="edit-cccd" name="cccd"></div>
+                <div class="form-group"><label>Số điện thoại</label><input type="text" id="edit-sdt" name="sodienthoai"></div>
+                <div class="form-group"><label>Số phòng</label><input type="text" id="edit-phong" name="sophong"></div>
+                <div class="form-group"><label>Trường</label><input type="text" id="edit-truong" name="truong"></div>
+                <div class="form-group"><label>Email</label><input type="email" id="edit-email" name="email"></div>
+                <div class="form-group"><label>Quê quán</label><input type="text" id="edit-quequan" name="quequan"></div>
+                <div class="form-group"><label>Ngày bắt đầu</label><input type="date" id="edit-ngaybatdau" name="ngaybatdau"></div>
+            </div>
+            <div class="btn-group" style="justify-content: flex-end;">
+                <button type="button" class="btn btn-cancel" onclick="dongModalSua()">Hủy</button>
+                <button type="submit" class="btn btn-confirm">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
+ 
+<div id="modalXacNhan" class="nen-mo">
+    <div class="o-trang">
+        <div style="color: #f59e0b; font-size: 55px; margin-bottom: 15px;"><i class="fas fa-question-circle"></i></div>
+        <h2>Xác nhận xóa</h2>
+        <p style="color: #6b7280; margin-bottom: 25px;">Bạn có chắc chắn muốn xóa sinh viên này?</p>
+        <div style="display: flex; justify-content: center;">
+            <button class="nut-modal nut-huy" onclick="dongXacNhan()">Hủy</button>
+            <button id="btnConfirmDelete" class="nut-modal nut-xoa">Đồng ý</button>
+        </div>
+    </div>
+</div>
+
+<div id="modalThanhCongXoa" class="nen-mo">
+    <div class="o-trang">
+        <div style="color: #1adb5aff; font-size: 55px; margin-bottom: 15px;"><i class="fas fa-check-circle"></i></div>
+        <h2>Thành công!</h2>
+        <p>Đã xóa sinh viên ra khỏi hệ thống</p>
+        <button class="nut-modal nut-xoa" onclick="location.reload()">Đóng</button>
+    </div>
+</div>
+
+<script>
+// 1. Hàm chuẩn hóa tên: trần anh tú -> Trần Anh Tú
+function chuanHoaTen(str) {
+    return str.toLowerCase().replace(/(^|\s)\S/g, function(l) {
+        return l.toUpperCase();
+    });
+}
+
+// Tự động chuẩn hóa khi người dùng nhập tên trong Modal Sửa
+document.getElementById('edit-hoten').addEventListener('blur', function() {
+    this.value = chuanHoaTen(this.value);
+});
+
+// 2. Logic Mở Modal Sửa (Giữ nguyên việc lấy dữ liệu từ hàng)
+function openEditModal(mssv) {
+    const row = document.getElementById('row-' + mssv);
+    
+    document.getElementById('edit-mssv').value = mssv;
+    document.getElementById('edit-hoten').value = row.querySelector('.c-hoten').innerText;
+    document.getElementById('edit-gioitinh').value = row.querySelector('.c-gioitinh').innerText.trim();
+    document.getElementById('edit-ngaysinh').value = row.querySelector('.c-ngaysinh').getAttribute('data-raw');
+    document.getElementById('edit-cccd').value = row.querySelector('.c-cccd').innerText;
+    document.getElementById('edit-sdt').value = row.querySelector('.c-sdt').innerText;
+    document.getElementById('edit-phong').value = row.querySelector('.c-sophong').innerText;
+    document.getElementById('edit-truong').value = row.querySelector('.c-truong').innerText;
+    document.getElementById('edit-email').value = row.querySelector('.c-email').innerText;
+    document.getElementById('edit-quequan').value = row.querySelector('.c-quequan').innerText;
+    document.getElementById('edit-ngaybatdau').value = row.querySelector('.c-ngaybatdau').getAttribute('data-raw');
+
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+function dongModalSua() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+// 3. Logic Gửi Form Sửa: TỰ RELOAD NGAY, KHÔNG HIỆN THÔNG BÁO
+// Hàm xóa trạng thái lỗi
+function clearErrorState(inputName) {
+    const input = document.getElementsByName(inputName)[0];
+    if (input) {
+        input.classList.remove('is-invalid');
+        const errorMsg = input.parentNode.querySelector('.error-text');
+        if (errorMsg) errorMsg.remove();
+    }
+}
+
+// Lắng nghe sự kiện nhập liệu để xóa lỗi tự động
+const inputs = ['hoten', 'cccd', 'sodienthoai', 'email', 'sophong', 'ngaysinh', 'ngaybatdau'];
+inputs.forEach(name => {
+    const el = document.getElementsByName(name)[0];
+    if (el) {
+        el.addEventListener('input', function() {
+            const val = this.value.trim();
+            let isValid = val !== "";
+            
+            // AC03: Kiểm tra định dạng riêng để xóa lỗi ngay khi gõ đúng
+            if (name === 'email') {
+                // Regex yêu cầu abc@gmail.com (đuôi phải từ 3 ký tự trở lên để bắt lỗi .co, .c)
+                isValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{3,}$/.test(val);
+            } else if (name === 'cccd') {
+                isValid = /^[0-9]{12}$/.test(val); // AC03: CCCD 12 số
+            } else if (name === 'sodienthoai') {
+                isValid = /^(0[3|5|7|8|9])[0-9]{8}$/.test(val); // AC03: SĐT 10 số
+            }
+
+            if (isValid) clearErrorState(name); // Tự động mất chữ đỏ khi điền đúng
+        });
+    }
+});
+
+// Xử lý gửi Form
+document.getElementById('formEdit').onsubmit = async function(e) {
+    e.preventDefault();
+    
+    // Xóa tất cả thông báo lỗi cũ trước khi gửi yêu cầu mới
+    document.querySelectorAll('.error-text').forEach(el => el.remove());
+    document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+    try {
+        const response = await fetch('suasinhvien.php', { 
+            method: 'POST', 
+            body: new FormData(this) 
+        });
+        
+        // AC07: Lỗi kết nối server (404/500)
+        if (!response.ok) throw new Error("Hệ thống: Lỗi kết nối (Mã lỗi: " + response.status + ")");
+
+        const result = await response.json(); //
+
+        if (result.success) {
+            location.reload(); // AC05: Lưu thay đổi thành công
+        } else {
+            // Hiển thị lỗi dưới từng ô nhập liệu
+            for (const [field, message] of Object.entries(result.errors)) {
+                if (field === 'system_error') {
+                    // AC07: Xử lý lỗi hệ thống hoặc trùng lặp (AC04)
+                    alert("Thông báo hệ thống: " + message);
+                } else {
+                    const input = document.getElementsByName(field)[0];
+                    if (input) {
+                        input.classList.add('is-invalid'); // Thêm viền đỏ
+                        
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'error-text';
+                        // Màu đỏ theo mã c13947ff bạn yêu cầu
+                        errorDiv.style.cssText = "color: #c13947; font-size: 11px; margin-top: 4px; font-weight: bold;";
+                        errorDiv.innerText = message;
+                        
+                        input.parentNode.appendChild(errorDiv); // Chèn thông báo dưới ô nhập liệu
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        // AC07: Bắt các lỗi JavaScript hoặc lỗi mạng
+        alert("AC07 - Lỗi hệ thống: " + error.message);
+    }
+};
+// 4. LOGIC XÓA (GIỮ NGUYÊN CÓ THÔNG BÁO NHƯ BẠN MUỐN)
+function moXacNhanXoa(mssv) {
+    document.getElementById('modalXacNhan').style.display = 'flex';
+    document.getElementById('btnConfirmDelete').onclick = function() {
+        fetch('xoasinhvien.php?id=' + mssv)
+        .then(() => {
+            document.getElementById('modalXacNhan').style.display = 'none';
+            document.getElementById('modalThanhCongXoa').style.display = 'flex';
+        });
+    };
+}
+
+function dongXacNhan() {
+    document.getElementById('modalXacNhan').style.display = 'none';
+}
+
+// Đóng modal khi click ra ngoài
+window.onclick = function(event) {
+    if (event.target.className === 'modal-overlay') dongModalSua();
+    if (event.target.className === 'nen-mo') dongXacNhan();
+}
+</script>
+</body>
+</html>

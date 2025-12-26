@@ -1,6 +1,10 @@
 <?php 
 require_once '../includes/check_login.php'; 
 require_once '../includes/db_config_sinhvien.php'; 
+// ===== XỬ LÝ LỖI HỆ THỐNG: KẾT NỐI CSDL =====
+if (!isset($conn) || $conn->connect_error) {
+    die("system_error");
+}
 
 if(!isset($_SESSION['loggedin'])){
     header("Location: ../quanlynguoidung/dangnhaphethong.php");
@@ -17,9 +21,15 @@ if (!empty($search)) {
     $searchTerm = "%$search%";
     $stmt->bind_param("ssss", $searchTerm, $searchTerm, $searchTerm, $searchTerm);
     $stmt->execute();
+
+    if ($stmt->errno) {
+        die("system_error");
+    }
+    
     $result = $stmt->get_result();
 } else {
     $result = mysqli_query($conn, $sql);
+    
 }
 ?>
 

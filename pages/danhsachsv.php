@@ -1,18 +1,21 @@
 <?php 
 require_once '../includes/check_login.php'; 
 require_once '../includes/db_config_sinhvien.php'; 
-
+// ===== XỬ LÝ LỖI HỆ THỐNG: KẾT NỐI CSDL =====
+if (!isset($conn) || $conn->connect_error) {
+    die("system_error");
+}
 if(!isset($_SESSION['loggedin'])){
     header("Location: ../quanlynguoidung/dangnhaphethong.php");
     exit;
 }
 
-$sql = "SELECT * FROM sinhvien ORDER BY mssv ASC";
+$sql = "SELECT * FROM sinhvien ORDER BY CAST(SUBSTRING(mssv, 3) AS UNSIGNED) ASC";
 
 // --- XỬ LÝ TÌM KIẾM ---
 $search = $_GET['search'] ?? ''; 
 if (!empty($search)) {
-    $sql = "SELECT * FROM sinhvien WHERE hoten LIKE ? OR mssv LIKE ? OR sophong LIKE ? OR truong LIKE ? ORDER BY mssv DESC";
+    $sql = "SELECT * FROM sinhvien WHERE hoten LIKE ? OR mssv LIKE ? OR sophong LIKE ? OR truong LIKE ? ORDER BYCAST(SUBSTRING(mssv, 3) AS UNSIGNED) ASC";
     $stmt = $conn->prepare($sql);
     $searchTerm = "%$search%";
     $stmt->bind_param("ssss", $searchTerm, $searchTerm, $searchTerm, $searchTerm);
@@ -21,6 +24,7 @@ if (!empty($search)) {
 } else {
     $result = mysqli_query($conn, $sql);
 }
+
 ?>
 
 <!DOCTYPE html>

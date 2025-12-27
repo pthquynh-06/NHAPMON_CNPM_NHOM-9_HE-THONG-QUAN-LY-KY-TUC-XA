@@ -44,7 +44,6 @@
         <h2 style="color: #1e2640; font-weight: 700;">Danh sách phòng ký túc xá</h2>
     </div>
     
-  
 
         <table class="room-table">
             <thead>

@@ -1,3 +1,19 @@
+<?php 
+require_once '../includes/check_login.php'; 
+require_once '../includes/db_config_sinhvien.php'; 
+
+// Nhúng các file chức năng
+require_once 'timkiemphong.php';
+require_once 'cnttphong.php';
+
+if(!isset($_SESSION['loggedin'])){
+    header("Location: ../quanlynguoidung/dangnhaphethong.php");
+    exit;
+}
+
+$search = $_GET['search'] ?? ''; 
+$result = getRoomData($conn, $search); // Gọi hàm từ timkiemphong.php
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>

@@ -16,6 +16,7 @@ $sql = "SELECT * FROM sinhvien ORDER BY CAST(SUBSTRING(mssv, 3) AS UNSIGNED) ASC
 $search = $_GET['search'] ?? ''; 
 if (!empty($search)) {
     $sql = "SELECT * FROM sinhvien WHERE hoten LIKE ? OR mssv LIKE ? OR sophong LIKE ? OR truong LIKE ? ORDER BYCAST(SUBSTRING(mssv, 3) AS UNSIGNED) ASC";
+    $sql = "SELECT * FROM sinhvien WHERE hoten LIKE ? OR mssv LIKE ? OR sophong LIKE ? OR truong LIKE ? ORDER BY CAST(SUBSTRING(mssv, 3) AS UNSIGNED) ASC";
     $stmt = $conn->prepare($sql);
     $searchTerm = "%$search%";
     $stmt->bind_param("ssss", $searchTerm, $searchTerm, $searchTerm, $searchTerm);

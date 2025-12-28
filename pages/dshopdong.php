@@ -53,6 +53,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
     exit; 
 }
 
+// 3. TRUY VẤN DỮ LIỆU (Đã thêm xử lý lỗi hệ thống)
+$search = $_GET['query'] ?? ''; 
+try {
+    $sql = "SELECT * FROM hopdong 
+            WHERE mahopdong LIKE ? OR hoten LIKE ? OR mssv LIKE ? OR sophong LIKE ? 
+            ORDER BY mssv ASC"; 
+
+    $stmt = $conn->prepare($sql);
+    if(!$stmt) throw new Exception("Lỗi kết nối cơ sở dữ liệu");
+
+    $searchTerm = "%$search%";
+    $stmt->bind_param("ssss", $searchTerm, $searchTerm, $searchTerm, $searchTerm);
+    $stmt->execute();
+    $php_results = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+} catch (Exception $e) {
+    $error_message = $e->getMessage();
+    $php_results = [];
+}
+$today = date('Y-m-d');
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -127,8 +147,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
                     </tr>
                 </thead>
                 <tbody>
+                <?php if (isset($error_message)): ?>
+                        <tr><td colspan="7" style="text-align: center; padding: 20px; color: #ef4444; font-weight: bold;">Lỗi hệ thống: <?= $error_message ?></td></tr>
+                    <?php elseif (count($php_results) > 0): ?>
+                        <?php foreach ($php_results as $hd): 
+                            $is_expired = (strtotime($hd['ngayketthuc']) < strtotime($today)); 
+                            $status_label = $is_expired ? 'Hết hạn' : $hd['trangthai'];
+                            $status_class = $is_expired ? 'het-han' : 'con-han';
+                        ?>
 
-                
                 <tr id="row-<?= $hd['mahopdong'] ?>">
                             <td class="col-mahd"><?= $hd['mahopdong'] ?></td>
                             <td><b><?= $hd['hoten'] ?></b><br><small><?= $hd['mssv'] ?></small></td>

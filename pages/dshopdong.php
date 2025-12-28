@@ -109,6 +109,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
                 </thead>
                 <tbody>
 
+                
+                <tr id="row-<?= $hd['mahopdong'] ?>">
+                            <td class="col-mahd"><?= $hd['mahopdong'] ?></td>
+                            <td><b><?= $hd['hoten'] ?></b><br><small><?= $hd['mssv'] ?></small></td>
+                            <td><b><?= $hd['sophong'] ?></b></td>
+                            <td><?= number_format($hd['tienphong'], 0, ',', '.') ?> đ</td>
+                            <td><?= date('d/m/Y', strtotime($hd['ngayketthuc'])) ?></td>
+                            <td><span class="status-badge <?= $status_class ?>"><?= $status_label ?></span></td>
+                            <td style="text-align: center;">
+                                <i class="fa-solid fa-pen-to-square" style="color: #2563eb; cursor: pointer; margin-right: 15px;" onclick='openEditModal(<?= json_encode($hd) ?>)'></i>
+                                <i class="fa-solid fa-trash" style="color: #ef4444; cursor: pointer;" onclick="handleDeleteLogic('<?= $hd['mahopdong'] ?>', <?= $is_expired ? 'true' : 'false' ?>)"></i>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr><td colspan="7" style="text-align: center; padding: 20px;">Không tìm thấy kết quả.</td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<div id="modalCannotDelete" class="modal-overlay">
+    <div class="modal-box">
+        <h3 style="color: #1e293b;">Thông báo</h3>
+        <p>Hợp đồng còn hạn không thể xóa!</p>
+        <button onclick="closeModal('modalCannotDelete')" style="margin-top:20px; padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Đã hiểu</button>
+    </div>
+</div>
+
                 <div id="editModal" class="modal-overlay">
     <div class="modal-box modal-edit">
         <h3 style="margin-top: 0;">Chỉnh sửa hợp đồng</h3>

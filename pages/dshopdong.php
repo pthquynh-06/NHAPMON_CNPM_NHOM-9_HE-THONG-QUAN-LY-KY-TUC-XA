@@ -7,7 +7,7 @@ if(!isset($_SESSION['loggedin'])){
     exit;
 }
 
-/ 1. XỬ LÝ XÓA QUA AJAX
+// 1. XỬ LÝ XÓA QUA AJAX
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['action'] == 'delete_contract') {
     $mahd = $_POST['mahopdong']; 
     $sql = "DELETE FROM hopdong WHERE mahopdong = ?";
@@ -104,6 +104,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
 <main class="main"> 
     <div class="table-container-card">
         <h2 style="margin-bottom: 20px;">Danh sách hợp đồng</h2>
+        
+        <form action="" method="GET" style="display: flex; gap: 10px; margin-bottom: 20px; align-items: center;">
+            <input type="text" name="query" placeholder="Tìm kiếm theo mã HĐ, tên, MSSV, phòng..." style="flex: 1; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;" value="<?= htmlspecialchars($search) ?>">
+            <button type="submit" class="btn-search">Tìm kiếm</button>
+            <?php if($search !== ''): ?>
+                <a href="?" class="btn-clear">Hủy lọc</a>
+            <?php endif; ?>
+        </form>
         
         <div class="table-responsive">
             <table class="student-table">

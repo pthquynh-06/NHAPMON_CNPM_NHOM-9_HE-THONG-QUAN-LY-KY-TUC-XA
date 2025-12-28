@@ -74,6 +74,15 @@ $result = getRoomData($conn, $search); // Gọi hàm từ timkiemphong.php
                 </tr>
             </thead>
             <tbody>
+            <?php 
+               // Kiểm tra nếu biến $result có dữ liệu
+                if ($result && mysqli_num_rows($result) > 0): 
+                    while($row = mysqli_fetch_assoc($result)): 
+                        $status_text = $row['trangthai'];
+                        $status_class = ($status_text == 'Trống') ? 'status-empty' : 
+                            (($status_text == 'Đầy') ? 'status-full' : 
+                            (($status_text == 'Đang sửa chữa') ? 'status-repair' : 'status-available'));
+                ?>
               
                     <tr>
                         <td class="room-id"><?php echo htmlspecialchars($row['sophong']); ?></td>
@@ -93,6 +102,39 @@ $result = getRoomData($conn, $search); // Gọi hàm từ timkiemphong.php
         </table>
     </div>
 </main>
+<script>
+/* Giữ nguyên toàn bộ phần JavaScript xử lý logic Client-side */
+function autoUpdateStatus() {
+    const succhua = parseInt(document.getElementById('edit-succhua').value);
+    const songuoi = parseInt(document.getElementById('edit-songuoi').value);
+    const statusSelect = document.getElementById('edit-trangthai');
 
+    if (songuoi === 0) {
+        statusSelect.value = "Trống";
+    } else if (songuoi === succhua) {
+        statusSelect.value = "Đầy";
+    } else {
+        statusSelect.value = "Còn chỗ";
+    }
+}
+
+function generateSonguoiOptions(selectedVal = 0) {
+    const succhua = parseInt(document.getElementById('edit-succhua').value);
+    const songuoiSelect = document.getElementById('edit-songuoi');
+    songuoiSelect.innerHTML = '';
+    for (let i = 0; i <= succhua; i++) {
+        let opt = document.createElement('option');
+        opt.value = i;
+        opt.innerHTML = i; 
+        if (i == selectedVal) opt.selected = true;
+        songuoiSelect.appendChild(opt);
+    }
+}
+
+function updateSucchuaAndStatus() {
+    generateSonguoiOptions(0); 
+    autoUpdateStatus();
+}
+</script>
 </body>
 </html>

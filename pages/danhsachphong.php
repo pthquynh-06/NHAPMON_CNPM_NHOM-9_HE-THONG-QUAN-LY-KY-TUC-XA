@@ -125,9 +125,6 @@ $result = getRoomData($conn, $search); // Gọi hàm từ timkiemphong.php
                        </td>
                    </tr>
                <?php endif; ?>
-
-
-                <?php endif; ?>
             </tbody>
         </table>
     </div>

@@ -86,64 +86,117 @@ if(!isset($_SESSION['loggedin'])){
                 </thead>
                 <tbody>
 
-                <script>
-                function chuanHoaTen(str) {
-                    return str.toLowerCase().replace(/(^|\s)\S/g, function(l) {
-                        return l.toUpperCase();
-                    });
+                <div id="editModal" class="modal-overlay">
+    <div class="modal-box modal-edit">
+        <h3 style="margin-top: 0;">Chỉnh sửa hợp đồng</h3>
+        <div id="modal-alert-box" class="modal-alert"></div> 
+
+        <div class="form-grid">
+            <input type="hidden" id="edit-mahd">
+            <div class="form-group">
+                <label>Mã hợp đồng</label>
+                <input type="text" id="display-mahd" readonly class="input-locked">
+            </div>
+            <div class="form-group">
+                <label>Mã sinh viên</label>
+                <input type="text" id="edit-mssv" readonly class="input-locked">
+            </div>
+            <div class="form-group">
+                <label>Họ tên</label>
+                <input type="text" id="edit-hoten">
+                <div id="err-hoten" class="error-text">Không được để trống</div>
+            </div>
+            <div class="form-group">
+                <label>Phòng</label>
+                <input type="text" id="edit-phong">
+                <div id="err-phong" class="error-text">Không được để trống</div>
+            </div>
+            <div class="form-group">
+                <label>Tiền phòng (VNĐ)</label>
+                <input type="number" id="edit-tienphong" readonly class="input-locked">
+                <div id="err-tienphong" class="error-text">Không thể thay đổi tiền phòng</div>
+            </div>
+            <div class="form-group">
+                <label>Trạng thái</label>
+                <select id="edit-trangthai">
+                    <option value="Còn hiệu lực">Còn hiệu lực</option>
+                    <option value="Hết hạn">Hết hạn</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Ngày bắt đầu</label>
+                <input type="date" id="edit-ngaybatdau">
+            </div>
+            <div class="form-group">
+                <label>Ngày kết thúc</label>
+                <input type="date" id="edit-ngayketthuc">
+                <div id="err-ngay" class="error-text">Ngày kết thúc phải sau ngày bắt đầu</div>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 30px;">
+            <button onclick="closeModal('editModal')" style="padding: 10px 20px; background: #f1f5f9; border: none; border-radius: 8px; cursor: pointer;">Hủy</button>
+            <button onclick="saveEdit()" style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 8px; cursor: pointer;">Cập nhật</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function chuanHoaTen(str) {
+    return str.toLowerCase().replace(/(^|\s)\S/g, function(l) {
+        return l.toUpperCase();
+    });
+}
+
+function handleDeleteLogic(mahopdong, isExpired) {
+    if (!isExpired) {
+        document.getElementById('modalCannotDelete').style.display = 'flex';
+    } else {
+        document.getElementById('modalConfirmDelete').style.display = 'flex';
+        document.getElementById('btnConfirmAction').onclick = function() {
+            const p = new URLSearchParams();
+            p.append('action', 'delete_contract');
+            p.append('mahopdong', mahopdong);
+            fetch('', { method: 'POST', body: p }).then(r => r.text()).then(r => {
+                if(r.trim()==="success") {
+                    closeModal('modalConfirmDelete');
+                    document.getElementById('modalDeleteSuccess').style.display = 'flex';
+                } else {
+                    alert("Lỗi hệ thống: Không thể xóa hợp đồng vào lúc này.");
                 }
-                
-                function handleDeleteLogic(mahopdong, isExpired) {
-                    if (!isExpired) {
-                        document.getElementById('modalCannotDelete').style.display = 'flex';
-                    } else {
-                        document.getElementById('modalConfirmDelete').style.display = 'flex';
-                        document.getElementById('btnConfirmAction').onclick = function() {
-                            const p = new URLSearchParams();
-                            p.append('action', 'delete_contract');
-                            p.append('mahopdong', mahopdong);
-                            fetch('', { method: 'POST', body: p }).then(r => r.text()).then(r => {
-                                if(r.trim()==="success") {
-                                    closeModal('modalConfirmDelete');
-                                    document.getElementById('modalDeleteSuccess').style.display = 'flex';
-                                } else {
-                                    alert("Lỗi hệ thống: Không thể xóa hợp đồng vào lúc này.");
-                                }
-                            });
-                        };
-                    }
-                }
-                
-                function openEditModal(d) {
-                    document.getElementById('modal-alert-box').style.display = 'none';
-                    document.querySelectorAll('.error-text').forEach(e => e.style.display = 'none');
-                    document.querySelectorAll('input').forEach(e => e.classList.remove('input-error'));
-                
-                    document.getElementById('edit-mahd').value = d.mahopdong;
-                    document.getElementById('display-mahd').value = d.mahopdong;
-                    document.getElementById('edit-mssv').value = d.mssv;
-                    document.getElementById('edit-hoten').value = d.hoten;
-                    document.getElementById('edit-phong').value = d.sophong;
-                    document.getElementById('edit-tienphong').value = d.tienphong;
-                    document.getElementById('edit-trangthai').value = d.trangthai;
-                    document.getElementById('edit-ngaybatdau').value = d.ngaybatdau;
-                    document.getElementById('edit-ngayketthuc').value = d.ngayketthuc;
-                    document.getElementById('editModal').style.display = 'flex';
-                }
-                
-                function saveEdit() {
-                    const alertBox = document.getElementById('modal-alert-box');
-                    let hasError = false;
-                    
-                    ['hoten', 'phong'].forEach(f => {
-                        const input = document.getElementById('edit-' + f);
-                        if(!input.value.trim()) {
-                            input.classList.add('input-error');
-                            document.getElementById('err-' + f).style.display = 'block';
-                            hasError = true;
-                        } else {
-                            input.classList.remove('input-error');
-                            document.getElementById('err-' + f).style.display = 'none';
-                        }
-                    });          
- 
+            });
+        };
+    }
+}
+
+function openEditModal(d) {
+    document.getElementById('modal-alert-box').style.display = 'none';
+    document.querySelectorAll('.error-text').forEach(e => e.style.display = 'none');
+    document.querySelectorAll('input').forEach(e => e.classList.remove('input-error'));
+
+    document.getElementById('edit-mahd').value = d.mahopdong;
+    document.getElementById('display-mahd').value = d.mahopdong;
+    document.getElementById('edit-mssv').value = d.mssv;
+    document.getElementById('edit-hoten').value = d.hoten;
+    document.getElementById('edit-phong').value = d.sophong;
+    document.getElementById('edit-tienphong').value = d.tienphong;
+    document.getElementById('edit-trangthai').value = d.trangthai;
+    document.getElementById('edit-ngaybatdau').value = d.ngaybatdau;
+    document.getElementById('edit-ngayketthuc').value = d.ngayketthuc;
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+function saveEdit() {
+    const alertBox = document.getElementById('modal-alert-box');
+    let hasError = false;
+    
+    ['hoten', 'phong'].forEach(f => {
+        const input = document.getElementById('edit-' + f);
+        if(!input.value.trim()) {
+            input.classList.add('input-error');
+            document.getElementById('err-' + f).style.display = 'block';
+            hasError = true;
+        } else {
+            input.classList.remove('input-error');
+            document.getElementById('err-' + f).style.display = 'none';
+        }
+    });

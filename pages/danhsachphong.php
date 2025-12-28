@@ -149,6 +149,40 @@ function openEditRoomModal(room) {
     generateSonguoiOptions(room.songuoi);
     document.getElementById('editRoomModal').style.display = 'flex';
 }
+
+function saveRoomEdit() {
+    const sophong = document.getElementById('old-sophong').value;
+    const succhua = document.getElementById('edit-succhua').value;
+    const songuoi = document.getElementById('edit-songuoi').value;
+    const trangthai = document.getElementById('edit-trangthai').value;
+
+    const d = new URLSearchParams();
+    d.append('action', 'update_room');
+    d.append('sophong_old', sophong);
+    d.append('sophong', sophong);
+    d.append('succhua', succhua);
+    d.append('giaphong', 1500000); 
+    d.append('songuoi', songuoi);
+    d.append('trangthai', trangthai);
+
+    fetch('', { method: 'POST', body: d })
+    .then(r => r.text())
+    .then(res => {
+        const response = res.trim();
+        if(response === "success") {
+            window.location.reload();
+        } else if (response.startsWith("system_error:")) {
+            alert("Lỗi hệ thống: " + response.replace("system_error:", ""));
+        } else if (response === "error_value") {
+            alert("Lỗi: Giá trị nhập vào không hợp lệ!");
+        } else {
+            alert("Lưu thất bại: Đã xảy ra lỗi SQL không xác định.");
+        }
+    })
+    .catch(err => {
+        alert("Lỗi kết nối: Không thể gửi yêu cầu đến máy chủ.");
+    });
+}
 function closeModal() {
     document.getElementById('editRoomModal').style.display = 'none';
 }

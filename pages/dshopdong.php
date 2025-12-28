@@ -6,6 +6,29 @@ if(!isset($_SESSION['loggedin'])){
     header("Location: ../quanlynguoidung/dangnhaphethong.php");
     exit;
 }
+// 2. XỬ LÝ CẬP NHẬT QUA AJAX (Đã thêm xử lý lỗi hệ thống)
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['action'] == 'update_full') {
+    try {
+        $mahd = $_POST['mahopdong'];
+        $mssv = $_POST['mssv']; 
+        $hoten = $_POST['hoten'];
+        $sophong = $_POST['sophong'];
+        $ngaybatdau = $_POST['ngaybatdau']; 
+        $ngayketthuc = $_POST['ngayketthuc'];
+        $tienphong = $_POST['tienphong'];
+        $trangthai = $_POST['trangthai'];
+
+        // --- KIỂM TRA TRÙNG HỢP ĐỒNG CÒN HIỆU LỰC ---
+        if ($trangthai == 'Còn hiệu lực') {
+            $check_sql = "SELECT mahopdong FROM hopdong WHERE mssv = ? AND trangthai = 'Còn hiệu lực' AND mahopdong != ?";
+            $check_stmt = $conn->prepare($check_sql);
+            $check_stmt->bind_param("ss", $mssv, $mahd);
+            $check_stmt->execute();
+            if ($check_stmt->get_result()->num_rows > 0) {
+                echo "duplicate_active";
+                exit;
+            }
+        }
 
         $sql = "UPDATE hopdong SET mssv=?, hoten=?, sophong=?, ngaybatdau=?, ngayketthuc=?, tienphong=?, trangthai=? WHERE mahopdong=?";
         $stmt = $conn->prepare($sql);
@@ -200,3 +223,76 @@ function saveEdit() {
             document.getElementById('err-' + f).style.display = 'none';
         }
     });
+
+    if(hasError) {
+        alertBox.innerText = "Vui lòng kiểm tra dữ liệu và nhập đầy đủ thông tin!";
+        alertBox.className = "modal-alert alert-fail";
+        alertBox.style.display = 'block';
+        return;
+    }
+
+    const start = new Date(document.getElementById('edit-ngaybatdau').value);
+    const end = new Date(document.getElementById('edit-ngayketthuc').value);
+    if(end <= start) {
+        alertBox.innerText = "Ngày kết thúc phải sau ngày bắt đầu!";
+        alertBox.className = "modal-alert alert-fail";
+        alertBox.style.display = 'block';
+        document.getElementById('edit-ngayketthuc').classList.add('input-error');
+        document.getElementById('err-ngay').style.display = 'block';
+        return;
+    }
+
+    const d = new URLSearchParams();
+    d.append('action', 'update_full');
+    d.append('mahopdong', document.getElementById('edit-mahd').value);
+    d.append('mssv', document.getElementById('edit-mssv').value);
+    d.append('hoten', document.getElementById('edit-hoten').value);
+    d.append('sophong', document.getElementById('edit-phong').value);
+    d.append('tienphong', document.getElementById('edit-tienphong').value);
+    d.append('trangthai', document.getElementById('edit-trangthai').value);
+    d.append('ngaybatdau', document.getElementById('edit-ngaybatdau').value);
+    d.append('ngayketthuc', document.getElementById('edit-ngayketthuc').value);
+
+    fetch('', { method: 'POST', body: d })
+    .then(r => r.text())
+    .then(r => {
+        const res = r.trim();
+        if(res === "success") {
+            alertBox.innerText = "Chỉnh sửa thành công!";
+            alertBox.className = "modal-alert alert-success";
+            alertBox.style.display = 'block';
+            setTimeout(() => window.location.reload(), 1000);
+        } else if(res === "duplicate_active") {
+            alertBox.innerText = "Lỗi: Sinh viên này đang có một hợp đồng khác còn hiệu lực!";
+            alertBox.className = "modal-alert alert-fail";
+            alertBox.style.display = 'block';
+        } else {
+            alertBox.innerText = "Lỗi hệ thống: Không thể cập nhật dữ liệu vào lúc này.";
+            alertBox.className = "modal-alert alert-fail";
+            alertBox.style.display = 'block';
+        }
+    })
+    .catch(error => {
+        alertBox.innerText = "Lỗi kết nối: Vui lòng kiểm tra internet.";
+        alertBox.className = "modal-alert alert-fail";
+        alertBox.style.display = 'block';
+    });
+}
+
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+document.getElementById('edit-hoten').addEventListener('input', function(e) {
+    let cursorPosition = this.selectionStart;
+    this.value = chuanHoaTen(this.value);
+    this.setSelectionRange(cursorPosition, cursorPosition);
+});
+
+const originalOpenEditModal = openEditModal;
+openEditModal = function(d) {
+    originalOpenEditModal(d);
+    const hotenInput = document.getElementById('edit-hoten');
+    hotenInput.value = chuanHoaTen(hotenInput.value);
+};
+</script>
+</body>
+</html>

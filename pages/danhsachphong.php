@@ -59,7 +59,20 @@ $result = getRoomData($conn, $search); // Gọi hàm từ timkiemphong.php
     <div class="header">
         <h2 style="color: #1e2640; font-weight: 700;">Danh sách phòng ký túc xá</h2>
     </div>
-    
+    <div class="table-container-card">
+        <div style="margin-bottom: 25px;">
+            <form method="GET" action="danhsachphong.php" style="display: flex; gap: 10px;">
+                <div style="position: relative; flex: 1;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                    <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="Tìm số phòng hoặc trạng thái..." 
+                        style="width: 100%; padding: 12px 15px 12px 45px; border-radius: 12px; border: 1.4px solid #d1dae4; outline: none;">
+                </div>
+                <button type="submit" class="btn btn-confirm">Tìm kiếm</button>
+                <?php if($search != ''): ?>
+                    <a href="danhsachphong.php" style="padding: 12px 15px; background: #f1f5f9; color: #475569; border-radius: 11px; text-decoration: none; font-size: 14px; display: flex; align-items: center;">Hủy lọc</a>
+                <?php endif; ?>
+            </form>
+        </div>
   
 
         <table class="room-table">
@@ -96,6 +109,23 @@ $result = getRoomData($conn, $search); // Gọi hàm từ timkiemphong.php
                     </tr>
                 <?php 
                     endwhile; 
+                else: 
+                    // TRƯỜNG HỢP KHÔNG TÌM THẤY KẾT QUẢ
+               ?>
+                   <tr>
+                       <td colspan="6" style="text-align: center; padding: 60px 20px;">
+                           <div style="color: #94a3b8;">
+                               <i class="fa-solid fa-magnifying-glass-minus" style="font-size: 48px; margin-bottom: 15px; color: #cbd5e1;"></i>
+                               <h3 style="color: #475569; margin-bottom: 8px;">Không tìm thấy phòng nào</h3>
+                               <p style="font-size: 14px;">Không có kết quả nào khớp với từ khóa "<strong><?php echo htmlspecialchars($search); ?></strong>".</p>
+                               <a href="danhsachphong.php" style="display: inline-block; margin-top: 15px; color: #2563eb; text-decoration: none; font-weight: 600; font-size: 14px;">
+                                   <i class="fa-solid fa-arrow-rotate-left"></i> Quay lại danh sách đầy đủ
+                               </a>
+                           </div>
+                       </td>
+                   </tr>
+               <?php endif; ?>
+
 
                 <?php endif; ?>
             </tbody>

@@ -6,6 +6,17 @@ if(!isset($_SESSION['loggedin'])){
     header("Location: ../quanlynguoidung/dangnhaphethong.php");
     exit;
 }
+
+// 1. XỬ LÝ XÓA QUA AJAX
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['action'] == 'delete_contract') {
+    $mahd = $_POST['mahopdong']; 
+    $sql = "DELETE FROM hopdong WHERE mahopdong = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $mahd);
+    echo $stmt->execute() ? "success" : "error";
+    exit; 
+}
+
 // 2. XỬ LÝ CẬP NHẬT QUA AJAX (Đã thêm xử lý lỗi hệ thống)
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['action'] == 'update_full') {
     try {
@@ -140,7 +151,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
     </div>
 </div>
 
-                <div id="editModal" class="modal-overlay">
+<div id="modalConfirmDelete" class="modal-overlay">
+    <div class="modal-box">
+        <h3 style="color: #1e293b;">Xác nhận xóa</h3>
+        <p>Bạn có chắc muốn xóa hợp đồng này?</p>
+        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 25px;">
+            <button onclick="closeModal('modalConfirmDelete')" style="padding: 10px 20px; background: #f1f5f9; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Hủy</button>
+            <button id="btnConfirmAction" style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Đồng ý</button>
+        </div>
+    </div>
+</div>
+
+<div id="modalDeleteSuccess" class="modal-overlay">
+    <div class="modal-box">
+        <h3 style="color: #166534;">Thông báo</h3>
+        <p>Xóa hợp đồng thành công!</p>
+        <button onclick="window.location.reload()" style="margin-top:20px; padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Đã hiểu</button>
+    </div>
+</div>
+
+<div id="editModal" class="modal-overlay">
     <div class="modal-box modal-edit">
         <h3 style="margin-top: 0;">Chỉnh sửa hợp đồng</h3>
         <div id="modal-alert-box" class="modal-alert"></div> 

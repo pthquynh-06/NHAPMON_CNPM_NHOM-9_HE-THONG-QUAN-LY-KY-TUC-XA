@@ -102,6 +102,9 @@ $result = getRoomData($conn, $search); // Gọi hàm từ timkiemphong.php
         </table>
     </div>
 </main>
+
+<?php renderEditModal(); ?>
+
 <script>
 /* Giữ nguyên toàn bộ phần JavaScript xử lý logic Client-side */
 function autoUpdateStatus() {
@@ -134,6 +137,20 @@ function generateSonguoiOptions(selectedVal = 0) {
 function updateSucchuaAndStatus() {
     generateSonguoiOptions(0); 
     autoUpdateStatus();
+}
+
+function openEditRoomModal(room) {
+    document.getElementById('old-sophong').value = room.sophong;
+    document.getElementById('edit-sophong').value = room.sophong;
+    document.getElementById('edit-succhua').value = room.succhua;
+    document.getElementById('edit-giaphong').value = 1500000;
+    document.getElementById('edit-trangthai').value = room.trangthai;
+    
+    generateSonguoiOptions(room.songuoi);
+    document.getElementById('editRoomModal').style.display = 'flex';
+}
+function closeModal() {
+    document.getElementById('editRoomModal').style.display = 'none';
 }
 </script>
 </body>

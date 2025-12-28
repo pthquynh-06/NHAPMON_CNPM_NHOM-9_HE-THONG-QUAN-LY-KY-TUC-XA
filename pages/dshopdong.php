@@ -1,3 +1,11 @@
+<?php 
+require_once '../includes/check_login.php'; 
+require_once '../includes/db_config_sinhvien.php'; 
+
+if(!isset($_SESSION['loggedin'])){
+    header("Location: ../quanlynguoidung/dangnhaphethong.php");
+    exit;
+}
 
         $sql = "UPDATE hopdong SET mssv=?, hoten=?, sophong=?, ngaybatdau=?, ngayketthuc=?, tienphong=?, trangthai=? WHERE mahopdong=?";
         $stmt = $conn->prepare($sql);
@@ -76,4 +84,66 @@
                         <th style="text-align: center;">THAO TÁC</th>
                     </tr>
                 </thead>
-                <tbody>   
+                <tbody>
+
+                <script>
+                function chuanHoaTen(str) {
+                    return str.toLowerCase().replace(/(^|\s)\S/g, function(l) {
+                        return l.toUpperCase();
+                    });
+                }
+                
+                function handleDeleteLogic(mahopdong, isExpired) {
+                    if (!isExpired) {
+                        document.getElementById('modalCannotDelete').style.display = 'flex';
+                    } else {
+                        document.getElementById('modalConfirmDelete').style.display = 'flex';
+                        document.getElementById('btnConfirmAction').onclick = function() {
+                            const p = new URLSearchParams();
+                            p.append('action', 'delete_contract');
+                            p.append('mahopdong', mahopdong);
+                            fetch('', { method: 'POST', body: p }).then(r => r.text()).then(r => {
+                                if(r.trim()==="success") {
+                                    closeModal('modalConfirmDelete');
+                                    document.getElementById('modalDeleteSuccess').style.display = 'flex';
+                                } else {
+                                    alert("Lỗi hệ thống: Không thể xóa hợp đồng vào lúc này.");
+                                }
+                            });
+                        };
+                    }
+                }
+                
+                function openEditModal(d) {
+                    document.getElementById('modal-alert-box').style.display = 'none';
+                    document.querySelectorAll('.error-text').forEach(e => e.style.display = 'none');
+                    document.querySelectorAll('input').forEach(e => e.classList.remove('input-error'));
+                
+                    document.getElementById('edit-mahd').value = d.mahopdong;
+                    document.getElementById('display-mahd').value = d.mahopdong;
+                    document.getElementById('edit-mssv').value = d.mssv;
+                    document.getElementById('edit-hoten').value = d.hoten;
+                    document.getElementById('edit-phong').value = d.sophong;
+                    document.getElementById('edit-tienphong').value = d.tienphong;
+                    document.getElementById('edit-trangthai').value = d.trangthai;
+                    document.getElementById('edit-ngaybatdau').value = d.ngaybatdau;
+                    document.getElementById('edit-ngayketthuc').value = d.ngayketthuc;
+                    document.getElementById('editModal').style.display = 'flex';
+                }
+                
+                function saveEdit() {
+                    const alertBox = document.getElementById('modal-alert-box');
+                    let hasError = false;
+                    
+                    ['hoten', 'phong'].forEach(f => {
+                        const input = document.getElementById('edit-' + f);
+                        if(!input.value.trim()) {
+                            input.classList.add('input-error');
+                            document.getElementById('err-' + f).style.display = 'block';
+                            hasError = true;
+                        } else {
+                            input.classList.remove('input-error');
+                            document.getElementById('err-' + f).style.display = 'none';
+                        }
+                    });          
+ 

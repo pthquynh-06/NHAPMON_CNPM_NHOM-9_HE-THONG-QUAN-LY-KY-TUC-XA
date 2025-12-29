@@ -71,6 +71,24 @@
                     <?php endif; ?>
                 </div>
 
+                <div class="form-group">
+                    <label>Sức chứa (Người) <span class="required">*</span></label>
+                    <input type="number" name="succhua" 
+                           placeholder="Nhập sức chứa" 
+                           class="<?php echo isset($errors['succhua']) ? 'is-invalid' : ''; ?>" 
+                           value="<?php echo htmlspecialchars($succhua ?? ''); ?>">
+                    <?php if (isset($errors['succhua'])): ?>
+                        <div class="error-text"><?php echo $errors['succhua']; ?></div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="form-group">
+                    <label>Giá phòng (VNĐ/Tháng) <span class="required">*</span></label>
+                    <input type="number" name="giaphong" 
+                           placeholder="Ví dụ: 1500000" 
+                           class="no-spinner <?php echo isset($errors['giaphong']) ? 'is-invalid' : ''; ?>" 
+                           value="<?php echo htmlspecialchars($giaphong ?? ''); ?>">
+                    <?php if (isset($errors['giaphong'])): ?>
                         <div class="error-text"><?php echo $errors['giaphong']; ?></div>
                     <?php endif; ?>
                 </div>
@@ -87,3 +105,23 @@
             </div>
         </form>
     </div>
+    
+    <?php if ($show_success_modal): ?>
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <div class="icon-box">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2 style="margin-bottom: 10px; color: #1f2937; font-size: 24px;">Thành công!</h2>
+            <p style="color: #6b7280; margin-bottom: 30px; line-height: 1.5;">Phòng mới đã được thêm thành công vào hệ thống.</p>
+            
+            <button onclick="window.location.href = window.location.pathname" 
+                    class="btn btn-primary" style="width: 100%; padding: 12px;">
+                Xác nhận
+            </button>
+        </div>
+    </div>
+    <?php endif; ?>
+</main>
+</body>
+</html>

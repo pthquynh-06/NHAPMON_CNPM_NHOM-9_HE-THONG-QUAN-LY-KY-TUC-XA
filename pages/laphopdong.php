@@ -2,6 +2,9 @@
 require_once '../includes/check_login.php'; 
 require_once '../includes/db_config_sinhvien.php'; 
 
+$showSuccessModal = false;
+$systemError = ""; // Biến lưu trữ lỗi hệ thống
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Thêm code xử lý lỗi hệ thống bằng try-catch
     try {
@@ -30,6 +33,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt_hd = $conn->prepare($sql_hd);
         $stmt_hd->bind_param("ssssssis", $mahopdong, $mssv, $hoten, $sophong, $ngaybatdau, $ngayketthuc, $tienphong, $trangthai);
 
+        if ($stmt_hd->execute()) {
+            $showSuccessModal = true; // Thêm code hiển thị thông báo thành công
+        } else {
+            throw new Exception("Không thể thực thi câu lệnh SQL.");
+        }
+    } catch (Exception $e) {
         $systemError = "Lỗi hệ thống: " . $e->getMessage();
     }
 }
@@ -134,5 +143,111 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="number" name="room_price" id="room_price" value="1500000" readonly style="background-color: #f3f4f6; cursor: not-allowed;">
                     <span class="error-text">Vui lòng nhập tiền phòng!</span>
                 </div>    
+                <div class="actions">
+                    <button type="button" class="btn btn-cancel" onclick="window.location.href='giaodienhopdong.php'">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="validateForm()">Lập hợp đồng</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+
+<div id="successModal" class="modal-overlay" <?php if($showSuccessModal) echo 'style="display:flex;"'; ?>>
+    <div class="modal-box">
+        <i class="fa-solid fa-circle-check" style="font-size:50px; color:#22c55e;"></i>
+        <h3 style="margin-top:15px;">Thành công</h3>
+        <p>Hợp đồng đã được lập thành công!</p>
+        <button class="btn btn-primary" style="width:100%" onclick="window.location.href=window.location.pathname">Tiếp tục lập hợp đồng</button>
+    </div>
+</div>
+
+<script>
+    // Xử lý viết hoa chữ cái đầu cho Họ tên
+    document.getElementById('fullname').addEventListener('blur', function() {
+        this.value = this.value.toLowerCase().replace(/(^|\s)\S/g, function(l) {
+            return l.toUpperCase();
+        });
+    });
+
+    function validateForm() {
+        let isValid = true;
+        
+        // Code kiểm tra không được để trống
+        const requiredFields = [
+            { id: 'fullname', msg: 'Họ tên không được để trống!' },
+            { id: 'start_date', msg: 'Vui lòng chọn ngày bắt đầu!' },
+            { id: 'end_date', msg: 'Vui lòng chọn ngày kết thúc!' },
+            { id: 'phone', msg: 'Số điện thoại không được để trống!' },
+            { id: 'email', msg: 'Email không được để trống!' }
+        ];
+
+        requiredFields.forEach(field => {
+            const input = document.getElementById(field.id);
+            const parent = input.parentElement;
+            if (input.value.trim() === "") {
+                parent.querySelector('.error-text').innerText = field.msg;
+                parent.classList.add('has-error');
+                isValid = false;
+            } else {
+                parent.classList.remove('has-error');
+            }
+        });
+
+        // Thêm code định dạng mã sinh viên đúng: SV001
+        const mssv = document.getElementById('mssv');
+        const mssvRegex = /^SV\d{3,}$/; 
+        if (!mssvRegex.test(mssv.value.trim())) {
+            mssv.parentElement.classList.add('has-error');
+            mssv.parentElement.querySelector('.error-text').innerText = "Định dạng MSSV không đúng (Ví dụ: SV001)!";
+            isValid = false;
+        } else {
+            mssv.parentElement.classList.remove('has-error');
+        }
+
+        // Thêm code định dạng số phòng đúng: A102 hoặc B103
+        const room = document.getElementById('room_number');
+        const roomRegex = /^[AB]\d{3}$/;
+        if (!roomRegex.test(room.value.trim())) {
+            room.parentElement.classList.add('has-error');
+            room.parentElement.querySelector('.error-text').innerText = "Số phòng phải là A hoặc B kèm 3 chữ số (VD: A102)!";
+            isValid = false;
+        } else {
+            room.parentElement.classList.remove('has-error');
+        }
+
+        // Thêm code định dạng mã hợp đồng đúng: HĐ-2025100
+        const contract = document.getElementById('contract_code');
+        const contractRegex = /^HĐ-\d{7,}$/;
+        if (!contractRegex.test(contract.value.trim())) {
+            contract.parentElement.classList.add('has-error');
+            contract.parentElement.querySelector('.error-text').innerText = "Mã HĐ định dạng sai (Ví dụ: HĐ-2025100)!";
+            isValid = false;
+        } else {
+            contract.parentElement.classList.remove('has-error');
+        }
+
+        // Kiểm tra Email & SĐT định dạng đúng
+        const email = document.getElementById('email');
+        // Regex bắt buộc phải có đuôi @gmail.com
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+        if (email.value.trim() !== "" && !emailRegex.test(email.value)) {
+            email.parentElement.classList.add('has-error');
+            email.parentElement.querySelector('.error-text').innerText = "Email phải có định dạng abc@gmail.com!";
+            isValid = false;
+        }
+
+        const phone = document.getElementById('phone');
+        if (phone.value.trim() !== "" && (phone.value.length !== 10 || isNaN(phone.value))) {
+            phone.parentElement.classList.add('has-error');
+            phone.parentElement.querySelector('.error-text').innerText = "Số điện thoại phải là 10 chữ số!";
+            isValid = false;
+        }
+
+        if (isValid) {
+            document.getElementById('contractForm').submit();
+        }
+    }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+</script>      
 </body>
 </html>                

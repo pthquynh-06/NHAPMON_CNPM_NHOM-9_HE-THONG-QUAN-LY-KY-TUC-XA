@@ -1,4 +1,57 @@
+<?php 
+require_once '../includes/check_login.php'; 
+require_once '../includes/db_config_sinhvien.php'; 
+
+$showSuccessModal = false;
+$errorMsg = ""; // Lưu thông báo lỗi chi tiết cho ô phòng
+
+function getNextMaHD($conn) {
+    $next_mahd = "HDD001"; 
+    $query_max = "SELECT mahoadon FROM hoadon ORDER BY mahoadon DESC LIMIT 1";
+    $result_max = $conn->query($query_max);
+    if ($result_max && $result_max->num_rows > 0) {
+        $row = $result_max->fetch_assoc();
+        $number = (int)substr($row['mahoadon'], 3); 
+        $next_mahd = "HDD" . str_pad($number + 1, 3, "0", STR_PAD_LEFT);
+    }
+    return $next_mahd;
+}
+
+$next_mahd = getNextMaHD($conn);
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $mahd = $_POST['invoice_code'];
+    $sophong = trim($_POST['room_number']);
+    $billing_month = $_POST['billing_month'];
+    $year = substr($billing_month, 0, 4);
+    $month = substr($billing_month, 5, 2);
+    
+    $sodien = floatval($_POST['sodien']);
+    $sonuoc = floatval($_POST['sonuoc']);
+
+    // 1. KIỂM TRA PHÒNG CÓ TỒN TẠI KHÔNG
+    $sql_room = "SELECT trangthai FROM phong WHERE sophong = ?";
+    $stmt_room = $conn->prepare($sql_room);
+    $stmt_room->bind_param("s", $sophong);
+    $stmt_room->execute();
+    $result_room = $stmt_room->get_result();
+
+    if ($result_room->num_rows == 0) {
+        $errorMsg = "Phòng $sophong không tồn tại!";
+    } else {
+        $room_data = $result_room->fetch_assoc();
+        // 2. KIỂM TRA PHÒNG CÓ TRỐNG KHÔNG
+        if ($room_data['trangthai'] == 'Trống') {
+            $errorMsg = "Không có sinh viên nào ở phòng này!";
+        } else {
+            // 3. KIỂM TRA TRÙNG PHÒNG (ĐÃ LẬP HĐ CHƯA)
+            $check_sql = "SELECT mahoadon FROM hoadon WHERE sophong = ? AND thang = ? AND nam = ?";
+            $check_stmt = $conn->prepare($check_sql);
+            $check_stmt->bind_param("sss", $sophong, $month, $year);
+            $check_stmt->execute();
             
+            if ($check_stmt->get_result()->num_rows > 0) {
+                $errorMsg = "Phòng $sophong đã được lập hóa đơn cho tháng $month/$year rồi!";       
             } else {
                 if ($sodien > 0 && $sonuoc > 0) {
                     $phidichvu = 50000; 

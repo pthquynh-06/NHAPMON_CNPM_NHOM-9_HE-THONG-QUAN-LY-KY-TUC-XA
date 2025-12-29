@@ -1,4 +1,16 @@
-
+    $stmt_update = $conn->prepare("UPDATE hoadon SET trangthai = ?, sodien = ?, sonuoc = ? WHERE mahoadon = ?");
+    $stmt_update->bind_param("ssis", $_POST['trangthai'], $_POST['sodien'], $_POST['sonuoc'], $_POST['mahoadon']);
+    
+// --- LOGIC TÌM KIẾM & TỰ ĐỘNG TÍNH QUÁ HẠN ---
+$search = $_GET['search'] ?? ''; 
+$sql_select = "SELECT *, 
+               CASE 
+                   WHEN trangthai = 'Chưa thanh toán' AND DATEDIFF(NOW(), ngaytao) > 7 THEN 'Đã quá hạn'
+                   ELSE trangthai 
+               END AS trangthai_ao,
+               DATE_ADD(ngaytao, INTERVAL 7 DAY) AS han_thanhtoan
+               FROM hoadon ";
+               
 <!DOCTYPE html>
 <html lang="vi">
 <head>

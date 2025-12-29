@@ -1,3 +1,37 @@
+<?php 
+require_once '../includes/check_login.php'; 
+require_once '../includes/db_config_sinhvien.php'; 
+
+$errors = [];
+$show_success_modal = false;
+
+if (isset($_POST['them_phong'])) {
+    // 1. NHẬN VÀ LÀM SẠCH DỮ LIỆU
+    $sophong  = htmlspecialchars(trim($_POST['sophong']));    
+    $succhua  = isset($_POST['succhua']) ? trim($_POST['succhua']) : '';
+    $giaphong = isset($_POST['giaphong']) ? trim($_POST['giaphong']) : '';
+    
+    $songuoi   = 0;
+    $trangthai = "Còn trống";
+
+    // 2. KIỂM TRA TRỐNG VÀ ĐỊNH DẠNG
+    if (empty($sophong)) {
+        $errors['sophong'] = "Số phòng không được để trống!";
+    } elseif (!preg_match('/^[A-Z][0-9]{3}$/', $sophong)) {
+        $errors['sophong'] = "Số phòng không đúng định dạng (Ví dụ: A101, B102)!";
+    }
+
+    if ($succhua === '') {
+        $errors['succhua'] = "Sức chứa không được để trống!";
+    } elseif (!filter_var($succhua, FILTER_VALIDATE_INT) || intval($succhua) <= 0) {
+        $errors['succhua'] = "Sức chứa phải là số nguyên dương!";
+    }
+
+    if ($giaphong === '') {
+        $errors['giaphong'] = "Giá phòng không được để trống!";
+    } elseif (!filter_var($giaphong, FILTER_VALIDATE_INT) || intval($giaphong) <= 0) {
+        $errors['giaphong'] = "Giá phòng phải là số nguyên dương!";
+    }
 ?>
 <!DOCTYPE html>
 <html lang="vi">

@@ -32,6 +32,34 @@ if (isset($_POST['them_phong'])) {
     } elseif (!filter_var($giaphong, FILTER_VALIDATE_INT) || intval($giaphong) <= 0) {
         $errors['giaphong'] = "Giá phòng phải là số nguyên dương!";
     }
+
+    // 3. KIỂM TRA TRÙNG SỐ PHÒNG
+    if (empty($errors)) {
+        $check = $conn->prepare("SELECT sophong FROM phong WHERE sophong = ?");
+        $check->bind_param("s", $sophong);
+        $check->execute();
+        $check->store_result();
+        if ($check->num_rows > 0) {
+            $errors['sophong'] = "Số phòng này đã tồn tại trên hệ thống!";
+        }
+        $check->close();
+    }
+
+    // 4. THỰC HIỆN INSERT
+    if (empty($errors)) {
+        $sql = $conn->prepare("INSERT INTO phong (sophong, succhua, giaphong, songuoi, trangthai) VALUES (?, ?, ?, ?, ?)");
+        $succhua_int = intval($succhua);
+        $giaphong_int = intval($giaphong);
+        $sql->bind_param("siiis", $sophong, $succhua_int, $giaphong_int, $songuoi, $trangthai);
+ 
+        if ($sql->execute()) {
+            $show_success_modal = true; 
+        } else {
+            $errors['system'] = "Lỗi hệ thống: " . $conn->error;
+        }
+        $sql->close();
+    }
+}    
 ?>
 <!DOCTYPE html>
 <html lang="vi">

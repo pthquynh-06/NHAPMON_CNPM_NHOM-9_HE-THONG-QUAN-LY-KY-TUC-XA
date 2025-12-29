@@ -138,3 +138,115 @@ $total_rows = mysqli_num_rows($result);
     </div>
 </main>
 
+<div id="viewModal" class="modal-overlay">
+    <div class="modal-box">
+        <h3>Chi tiết hóa đơn</h3>
+        <form id="updateStatusForm">
+            <input type="hidden" name="action" value="update_status">
+            <div class="form-grid">
+                <div class="form-group"><label>Mã hóa đơn</label><input type="text" name="mahoadon" id="view-ma" readonly></div>
+                <div class="form-group"><label>Số phòng</label><input type="text" id="view-phong" readonly></div>
+                
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Hạn thanh toán (Sau 7 ngày tạo)</label>
+                    <input type="text" id="view-han-tt" readonly style="font-weight: 700; color: #ef4444; background: #fff1f2;">
+                </div>
+
+                <div class="form-group"><label>Số điện (kWh)</label><input type="number" name="sodien" id="view-dien" style="background: #fff; border-color: #2563eb;"><span id="error-dien" class="error-msg">Sai định dạng</span></div>
+                <div class="form-group"><label>Số nước (m3)</label><input type="number" name="sonuoc" id="view-nuoc" style="background: #fff; border-color: #2563eb;"><span id="error-nuoc" class="error-msg">Sai định dạng</span></div>
+                
+                <div class="form-group"><label>Phí dịch vụ</label><input type="text" id="view-dv" data-raw-dv="0" readonly></div>
+                <div class="form-group"><label>Tiền phòng</label><input type="text" value="1.500.000" readonly></div>
+                
+                <div class="form-group" style="grid-column: span 2;"><label>Tổng tiền</label><input type="text" id="view-tong" readonly style="font-weight: 700; color: #166534; background: #f0fdf4;"></div>
+                
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Trạng thái</label>
+                    <select name="trangthai" id="view-trangthai">
+                        <option value="Chưa thanh toán">Chưa thanh toán</option>
+                        <option value="Đã thanh toán">Đã thanh toán</option>
+                        <option value="Đã quá hạn">Đã quá hạn</option>
+                    </select>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-cancel" onclick="closeModal('viewModal')">Đóng</button>
+                <button type="submit" class="btn btn-confirm">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="confirmDeleteModal" class="modal-overlay"><div class="modal-box confirm-box"><div style="color: #f59e0b; font-size: 70px; margin-bottom: 20px;"><i class="fa-solid fa-circle-question"></i></div><h2 style="margin-bottom: 10px;">Xác nhận xóa</h2><p style="color: #64748b; margin-bottom: 30px;">Bạn có chắc chắn muốn xóa hóa đơn này?</p><div style="display: flex; gap: 12px; justify-content: center;"><button class="btn btn-cancel" style="flex:1" onclick="closeModal('confirmDeleteModal')">Hủy</button><button id="btnConfirmDelete" class="btn btn-confirm" style="flex:1;">Đồng ý</button></div></div></div>
+<div id="alertModal" class="modal-overlay"><div class="modal-box confirm-box"><div id="alertIcon" style="font-size: 70px; margin-bottom: 20px;"></div><h2 id="alertTitle" style="margin-bottom: 10px;"></h2><p id="alertMessage" style="color: #64748b; margin-bottom: 30px;"></p><div style="display: flex; justify-content: center;"><button id="alertBtn" class="btn btn-confirm" style="min-width: 120px; border-radius: 25px;">Đóng</button></div></div></div>
+
+<script>
+function validateNumberInput(val, errorElementId, inputElementId) {
+    const errorEl = document.getElementById(errorElementId);
+    const inputEl = document.getElementById(inputElementId);
+    const isValid = val !== "" && !isNaN(val) && parseFloat(val) >= 0 && Number.isInteger(parseFloat(val));
+    if (!isValid) { errorEl.style.display = 'block'; inputEl.classList.add('input-invalid'); return false; } 
+    else { errorEl.style.display = 'none'; inputEl.classList.remove('input-invalid'); return true; }
+}
+
+function tinhTongTien() {
+    const dien = parseFloat(document.getElementById('view-dien').value) || 0;
+    const nuoc = parseFloat(document.getElementById('view-nuoc').value) || 0;
+    const phiDV = parseFloat(document.getElementById('view-dv').getAttribute('data-raw-dv')) || 0;
+    const tong = (dien * 11000) + (nuoc * 2800) + phiDV + 1500000;
+    document.getElementById('view-tong').value = new Intl.NumberFormat('vi-VN').format(tong) + ' đ';
+}
+
+document.getElementById('view-dien').addEventListener('input', tinhTongTien);
+document.getElementById('view-nuoc').addEventListener('input', tinhTongTien);
+
+function showAlert(title, message, type = 'success') {
+    const icon = document.getElementById('alertIcon'); const btn = document.getElementById('alertBtn');
+    if (type === 'success') { icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>'; icon.style.color = '#22c55e'; btn.style.background = '#22c55e'; } 
+    else { icon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>'; icon.style.color = '#ef4444'; btn.style.background = '#ef4444'; }
+    document.getElementById('alertTitle').innerText = title; document.getElementById('alertMessage').innerText = message;
+    document.getElementById('alertModal').style.display = 'flex';
+    btn.onclick = function() { closeModal('alertModal'); if (type === 'success') location.reload(); };
+}
+
+function openViewModal(id) {
+    const row = document.getElementById('row-' + id);
+    const data = JSON.parse(row.getAttribute('data-json'));
+    document.getElementById('view-ma').value = data.mahoadon;
+    document.getElementById('view-phong').value = data.sophong;
+    document.getElementById('view-dien').value = data.sodien;
+    document.getElementById('view-nuoc').value = data.sonuoc;
+    document.getElementById('view-dv').setAttribute('data-raw-dv', data.phidichvu);
+    document.getElementById('view-dv').value = new Intl.NumberFormat('vi-VN').format(data.phidichvu) + ' đ';
+    
+    const hanTT = new Date(data.han_thanhtoan);
+    document.getElementById('view-han-tt').value = hanTT.toLocaleDateString('vi-VN');
+    
+    tinhTongTien();
+    document.getElementById('view-trangthai').value = data.trangthai_ao;
+    document.getElementById('viewModal').style.display = 'flex';
+}
+
+document.getElementById('updateStatusForm').onsubmit = function(e) {
+    e.preventDefault();
+    fetch(window.location.href, { method: 'POST', body: new FormData(this) })
+    .then(res => res.json()).then(data => {
+        if(data.success) { closeModal('viewModal'); showAlert('Thành công', 'Cập nhật thành công!', 'success'); }
+        else { showAlert('Thất bại', 'Lỗi!', 'error'); }
+    });
+};
+
+function checkDelete(id, trangthai) {
+    if (trangthai === 'Chưa thanh toán' || trangthai === 'Đã quá hạn') {
+        showAlert('Thông báo', 'Hóa đơn chưa thanh toán hoặc quá hạn không được xóa!', 'error');
+        return;
+    }
+    document.getElementById('confirmDeleteModal').style.display = 'flex';
+    document.getElementById('btnConfirmDelete').onclick = function() { window.location.href = 'xoahoadon.php?id=' + id; };
+}
+
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+window.onclick = function(e) { if (e.target.classList.contains('modal-overlay')) e.target.style.display = 'none'; }
+</script>
+</body>
+</html>

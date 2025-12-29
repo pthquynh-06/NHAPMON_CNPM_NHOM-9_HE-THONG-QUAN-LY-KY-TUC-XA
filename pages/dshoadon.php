@@ -1,3 +1,7 @@
+<?php 
+require_once '../includes/check_login.php'; 
+require_once '../includes/db_config_sinhvien.php'; 
+
     $stmt_update = $conn->prepare("UPDATE hoadon SET trangthai = ?, sodien = ?, sonuoc = ? WHERE mahoadon = ?");
     $stmt_update->bind_param("ssis", $_POST['trangthai'], $_POST['sodien'], $_POST['sonuoc'], $_POST['mahoadon']);
     
@@ -10,6 +14,20 @@ $sql_select = "SELECT *,
                END AS trangthai_ao,
                DATE_ADD(ngaytao, INTERVAL 7 DAY) AS han_thanhtoan
                FROM hoadon ";
+
+if (!empty($search)) {
+    $sql_base = $sql_select . " WHERE mahoadon LIKE ? OR sophong LIKE ? ORDER BY mahoadon ASC";
+    $stmt = $conn->prepare($sql_base);
+    $searchTerm = "%$search%";
+    $stmt->bind_param("ss", $searchTerm, $searchTerm);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    $result = mysqli_query($conn, $sql_select . " ORDER BY mahoadon ASC");
+}
+
+$total_rows = mysqli_num_rows($result);
+?>
                
 <!DOCTYPE html>
 <html lang="vi">

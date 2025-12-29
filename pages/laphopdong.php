@@ -1,3 +1,38 @@
+<?php 
+require_once '../includes/check_login.php'; 
+require_once '../includes/db_config_sinhvien.php'; 
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Thêm code xử lý lỗi hệ thống bằng try-catch
+    try {
+        $mahopdong = $_POST['contract_code'];
+        $mssv = $_POST['mssv'];
+        
+        // Thêm code định dạng họ tên viết hoa chữ cái đầu
+        $hoten = mb_convert_case(trim($_POST['fullname']), MB_CASE_TITLE, "UTF-8");
+        
+        $sophong = $_POST['room_number'];
+        $ngaybatdau = $_POST['start_date'];
+        $ngayketthuc = $_POST['end_date'];
+        $tienphong = $_POST['room_price'];
+        $trangthai = "Còn hiệu lực";
+
+        $check_sv = $conn->prepare("SELECT mssv FROM sinhvien WHERE mssv = ?");
+        $check_sv->bind_param("s", $mssv);
+        $check_sv->execute();
+        
+        if ($check_sv->get_result()->num_rows == 0) {
+            $stmt_sv = $conn->prepare("INSERT INTO sinhvien (mssv, hoten) VALUES (?, ?)");
+            $stmt_sv->bind_param("ss", $mssv, $hoten);
+            $stmt_sv->execute();
+        }
+
+        $stmt_hd = $conn->prepare($sql_hd);
+        $stmt_hd->bind_param("ssssssis", $mahopdong, $mssv, $hoten, $sophong, $ngaybatdau, $ngayketthuc, $tienphong, $trangthai);
+
+        $systemError = "Lỗi hệ thống: " . $e->getMessage();
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="vi">

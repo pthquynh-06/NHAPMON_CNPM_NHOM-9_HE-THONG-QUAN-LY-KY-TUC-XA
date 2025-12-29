@@ -30,6 +30,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt_sv->execute();
         }
 
+        // Câu lệnh SQL chèn đầy đủ các cột
+        $sql_hd = "INSERT INTO hopdong (mahopdong, mssv, hoten, sophong, ngaybatdau, ngayketthuc, tienphong, trangthai, ngaytao) 
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+                   
         $stmt_hd = $conn->prepare($sql_hd);
         $stmt_hd->bind_param("ssssssis", $mahopdong, $mssv, $hoten, $sophong, $ngaybatdau, $ngayketthuc, $tienphong, $trangthai);
 

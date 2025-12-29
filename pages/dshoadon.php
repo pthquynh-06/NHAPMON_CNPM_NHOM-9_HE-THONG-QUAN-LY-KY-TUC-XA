@@ -67,6 +67,7 @@ $total_rows = mysqli_num_rows($result);
         .status-unpaid { background: #fee2e2; color: #991b1b; }
         .status-overdue { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; }
         .price-text { font-weight: 600; color: #1e2640; }
+        .action-icon { margin-right: 10px; } 
         .action-icon { font-size: 17px; cursor: pointer; transition: 0.2s; margin-right: 10px; }
         .action-icon:hover { transform: scale(1.2); }
         .search-btn { min-width: 130px; height: 45px; background: #2563eb; color: white; border: none; border-radius: 25px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -145,8 +146,6 @@ $total_rows = mysqli_num_rows($result);
                         <td><span class="badge <?php echo $status_class; ?>"><?php echo $status_hien_thi; ?></span></td>
                         <td style="text-align: center;">
                             <i class="fa-solid fa-eye action-icon" style="color: #64748b;" onclick="openViewModal('<?php echo $row['mahoadon']; ?>')"></i>
-                            <i class="fa-solid fa-trash action-icon" style="color: #ef4444;" onclick="checkDelete('<?php echo $row['mahoadon']; ?>', '<?php echo $status_hien_thi; ?>')"></i>
-                        </td>
                     </tr>  
                     <?php endwhile; ?>
                 <?php else: ?>
@@ -195,8 +194,6 @@ $total_rows = mysqli_num_rows($result);
         </form>
     </div>
 </div>
-
-<div id="confirmDeleteModal" class="modal-overlay"><div class="modal-box confirm-box"><div style="color: #f59e0b; font-size: 70px; margin-bottom: 20px;"><i class="fa-solid fa-circle-question"></i></div><h2 style="margin-bottom: 10px;">Xác nhận xóa</h2><p style="color: #64748b; margin-bottom: 30px;">Bạn có chắc chắn muốn xóa hóa đơn này?</p><div style="display: flex; gap: 12px; justify-content: center;"><button class="btn btn-cancel" style="flex:1" onclick="closeModal('confirmDeleteModal')">Hủy</button><button id="btnConfirmDelete" class="btn btn-confirm" style="flex:1;">Đồng ý</button></div></div></div>
 <div id="alertModal" class="modal-overlay"><div class="modal-box confirm-box"><div id="alertIcon" style="font-size: 70px; margin-bottom: 20px;"></div><h2 id="alertTitle" style="margin-bottom: 10px;"></h2><p id="alertMessage" style="color: #64748b; margin-bottom: 30px;"></p><div style="display: flex; justify-content: center;"><button id="alertBtn" class="btn btn-confirm" style="min-width: 120px; border-radius: 25px;">Đóng</button></div></div></div>
 
 <script>
@@ -254,15 +251,6 @@ document.getElementById('updateStatusForm').onsubmit = function(e) {
         else { showAlert('Thất bại', 'Lỗi!', 'error'); }
     });
 };
-
-function checkDelete(id, trangthai) {
-    if (trangthai === 'Chưa thanh toán' || trangthai === 'Đã quá hạn') {
-        showAlert('Thông báo', 'Hóa đơn chưa thanh toán hoặc quá hạn không được xóa!', 'error');
-        return;
-    }
-    document.getElementById('confirmDeleteModal').style.display = 'flex';
-    document.getElementById('btnConfirmDelete').onclick = function() { window.location.href = 'xoahoadon.php?id=' + id; };
-}
 
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 window.onclick = function(e) { if (e.target.classList.contains('modal-overlay')) e.target.style.display = 'none'; }

@@ -2,9 +2,28 @@
 require_once '../includes/check_login.php'; 
 require_once '../includes/db_config_sinhvien.php'; 
 
+// --- XỬ LÝ CẬP NHẬT TRẠNG THÁI (Giữ nguyên logic cũ) ---
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'update_status') {
+    $mahd = $_POST['mahoadon'];
+    $tt = $_POST['trangthai'];
+
     $stmt_update = $conn->prepare("UPDATE hoadon SET trangthai = ?, sodien = ?, sonuoc = ? WHERE mahoadon = ?");
     $stmt_update->bind_param("ssis", $_POST['trangthai'], $_POST['sodien'], $_POST['sonuoc'], $_POST['mahoadon']);
-    
+
+    if ($stmt_update->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false]);
+    }
+    exit; 
+}
+
+if (!isset($conn) || $conn->connect_error) { die("system_error"); }
+if(!isset($_SESSION['loggedin'])){
+    header("Location: ../quanlynguoidung/dangnhaphethong.php");
+    exit;
+}
+
 // --- LOGIC TÌM KIẾM & TỰ ĐỘNG TÍNH QUÁ HẠN ---
 $search = $_GET['search'] ?? ''; 
 $sql_select = "SELECT *, 
